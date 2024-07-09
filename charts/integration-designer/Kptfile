@@ -1,0 +1,10 @@
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: maven
+upstream:
+  type: git
+  git:
+    repo: https://github.com/flowx-ai/helm-charts-templates
+    directory: /charts/maven
+    ref: v0.0.3

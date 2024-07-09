@@ -1,0 +1,24 @@
+annotations:
+  category: FlowXBackend
+apiVersion: v2
+description: FlowX Integration Designer
+name: integration-designer
+home: https://flowx.ai
+icon: https://www.flowx.ai/hubfs/homepage-logo.svg
+engine: gotpl
+keywords:
+  - flowx
+  - integration
+  - designer
+  - core
+maintainers:
+  - email: office@flowx.ai
+    name: FlowX
+version: 0.1.0-SNAPSHOT
+appVersion: 0.1.0-SNAPSHOT
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.6.0

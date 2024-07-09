@@ -1,0 +1,28 @@
+{{- if .Values.kafkaTopics.enabled }}
+{{- $top := . -}}
+{{- range .Values.kafkaTopics.topics}}
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaTopic
+metadata:
+{{- /*
+  # customerSearchTopic-staging -> customer-search-topic-staging
+  # ro.flowx.updates.... -> ro-flowx-update....
+*/}}
+  name: {{ . | snakecase | replace "_" "-" | replace "." "-"  | lower }}
+  namespace: {{ $top.Release.Namespace }}
+  labels:
+{{- if $top.Values.kafkaTopics.clusterName }}
+    strimzi.io/cluster: {{ $top.Values.kafkaTopics.clusterName }}
+{{- else }}
+    strimzi.io/cluster: {{ $top.Values.kafka.name.prefix }}-{{ $top.Release.Namespace }}
+{{- end }}
+spec:
+  topicName: {{ . }}
+  partitions: {{ $top.Values.kafkaTopics.topicDefaults.partitions }}
+  replicas: {{ $top.Values.kafkaTopics.topicDefaults.replicas }}
+  config:
+    retention.ms: {{ $top.Values.kafkaTopics.topicDefaults.retention.ms }}
+    segment.bytes: {{ $top.Values.kafkaTopics.topicDefaults.segment.bytes }}
+{{- end }}
+{{- end }}
