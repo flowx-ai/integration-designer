@@ -1,0 +1,52 @@
+# ===================================================================
+# OpenID Connect Settings. Default settings are for Keycloak.
+# ===================================================================
+spring:
+  security:
+    oauth2:
+      resource-server:
+        opaque-token:
+          introspection-uri: ${security.oauth2.base-server-url}/realms/${security.oauth2.realm}/protocol/openid-connect/token/introspect
+          client-id: ${security.oauth2.client.client-id}
+          client-secret: ${security.oauth2.client.client-secret}
+
+security:
+  type: oauth2
+  basic:
+    enabled: false
+  pathAuthorizations:
+    - path: "/api/**"
+      rolesAllowed: "ANY_AUTHENTICATED_USER"
+  accessAuthorizations:
+    manage-products:
+      scopes:
+        import:
+          description: "Import access"
+          rolesAllowed:
+            - "ROLE_INTEGRATION_IMPORT"
+            - "ROLE_INTEGRATION_EDIT"
+            - "ROLE_INTEGRATION_ADMIN"
+        read:
+          description: "Read access"
+          rolesAllowed:
+            - "ROLE_INTEGRATION_READ"
+            - "ROLE_INTEGRATION_IMPORT"
+            - "ROLE_INTEGRATION_EDIT"
+            - "ROLE_INTEGRATION_ADMIN"
+        edit:
+          description: "Edit access"
+          rolesAllowed:
+            - "ROLE_INTEGRATION_EDIT"
+            - "ROLE_INTEGRATION_ADMIN"
+        admin:
+          description: "Admin access"
+          rolesAllowed:
+            - "ROLE_INTEGRATION_ADMIN"
+
+  oauth2:
+    base-server-url: #left empty on purpose
+    realm: #left empty on purpose
+    client:
+#      access-token-uri: ${security.oauth2.base-server-url}/realms/${security.oauth2.realm}/protocol/openid-connect/token
+      client-id: #left empty on purpose
+      client-secret: #left empty on purpose

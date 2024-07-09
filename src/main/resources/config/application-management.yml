@@ -1,0 +1,30 @@
+management:
+  server:
+    address: 0.0.0.0
+    port: 8081
+    base-path: /manage
+  security:
+    enabled: false
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "health,info,metrics,metric,prometheus"
+    health.sensitive: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+    caches:
+      enabled: true
+      cache:
+        time-to-live: 10ms
+  prometheus:
+    metrics:
+      export:
+        enabled: false
+    tags:
+      application: ${spring.application.name}
+  health:
+    defaults.enabled: true

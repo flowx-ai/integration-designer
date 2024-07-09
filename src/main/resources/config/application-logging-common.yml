@@ -1,0 +1,18 @@
+logging:
+  level:
+    ROOT: INFO
+
+    web: INFO
+
+    jdk.event.security: WARN
+
+    org:
+      jboss: WARN
+      reflections: WARN
+      springframework:
+        web: INFO
+        transaction.interceptor: ${LOGGING_LEVEL_APP:INFO}
+        security.oauth2:
+          client.resource.OAuth2AccessDeniedException: ${LOGGING_LEVEL_OAUTH2_EXC:OFF}
+          common.exceptions.InvalidTokenException: ${LOGGING_LEVEL_OAUTH2_EXC:OFF}
+        boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices: ${LOGGING_LEVEL_OAUTH2_EXC:OFF}

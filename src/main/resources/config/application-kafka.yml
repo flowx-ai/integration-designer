@@ -1,0 +1,45 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    security.protocol: "PLAINTEXT"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        message:
+          max:
+            bytes: ${KAFKA_MESSAGE_MAX_BYTES:52428800} #50MB
+        max:
+          request:
+            size: ${KAFKA_MESSAGE_MAX_BYTES:52428800} #50MB
+    consumer:
+      group-id: kafka-task-management-consumer
+      auto-offset-reset: earliest
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.StringSerializer
+
+kafka:
+  consumer:
+    threads: 3
+
+  auth-exception-retry-interval: 10
+
+  topic:
+    naming:
+      package: "ai.flowx."
+      environment: "dev."
+      version: ".v1"
+      prefix: ${kafka.topic.naming.package}${kafka.topic.naming.environment}
+      suffix: ${kafka.topic.naming.version}
+
+---
+spring.config.activate.on-profile: kafka-auth
+
+spring:
+  kafka:
+    security.protocol: "SASL_PLAINTEXT"
+    properties:
+      sasl:
+        mechanism: "OAUTHBEARER"
+        jaas.config: "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.client.id=\"${KAFKA_OAUTH_CLIENT_ID:kafka}\" oauth.client.secret=\"${KAFKA_OAUTH_CLIENT_SECRET:kafka-secret}\"  oauth.token.endpoint.uri=\"${KAFKA_OAUTH_TOKEN_ENDPOINT_URI:kafka.auth.localhost}\" ;"
+        login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler

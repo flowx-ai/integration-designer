@@ -1,0 +1,60 @@
+logging:
+  level:
+    ai.flowx.integration: ${LOGGING_LEVEL_APP:DEBUG}
+
+    org:
+      mongodb.driver: ${LOGGING_LEVEL_MONGO_DRIVER:INFO}
+
+    io:
+      netty: WARN
+
+server:
+  port: 8080
+  contextPath: /
+
+management:
+  health:
+    mongo.enabled: true
+    kafka.enabled: true
+
+spring:
+  application:
+    name: integration-designer
+
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+      fail-on-empty-beans: false
+
+spring.config.import: application-logging-common.yml, application-management.yml, application-kafka.yml, application-datasource-mongo.yml, application-oauth.yml
+
+---
+spring.config.activate.on-profile: dev
+
+spring.data.mongodb.uri: mongodb://admin:password@localhost:27017/admin
+
+security.oauth2.base-server-url: https://auth.devmain.flowxai.dev/auth
+security.oauth2.realm: paperflow
+security.oauth2.client.client-id: paperflow-service
+security.oauth2.client.client-secret: af2169ac-2521-4f48-9541-5d7cce12d503
+security.oauth2.service-account.admin.client-id: keycloak-admin
+security.oauth2.service-account.admin.client-secret: 3b243cec-d363-4af1-87fe-cd46fbfb6607
+
+logging.level.ROOT: DEBUG
+logging.level.ai.flowx.data.model: DEBUG
+logging.level.org.mongodb.driver: INFO
+logging.level.org.springframework.web: DEBUG
+logging.level.org.springframework.transaction.interceptor: DEBUG
+logging.level.org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+logging.level.org.keycloak: TRACE
+
+server.port: 8098
+management.server.port: 8197
+
+
+
+
+
+
+
+
