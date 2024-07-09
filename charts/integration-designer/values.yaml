@@ -1,0 +1,910 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  imageTagSuffix: ""
+  storageClass: ""
+
+## @section Common parameters
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.fullname template (will maintain the release name)
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname template
+##
+fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels:
+  app.kubernetes.io/release: 0.0.1-FLOWXRELEASE
+  app.kubernetes.io/version: 0.0.1-FLOWXVERSION
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param extraDeploy Array of extra objects to deploy with the release
+##
+extraDeploy: []
+
+## Image version
+## @param image.registry image registry
+## @param image.repository image repository
+## @param image.tag image tag (immutable tags are recommended)
+## @param image.tagSuffix image tag (immutable tags are recommended)
+## @param image.pullPolicy image pull policy
+## @param image.pullSecrets Specify image pull secrets
+## @param image.debug Specify if debug values should be set
+##
+
+image:
+  repository: integration-designer
+  tag: dev
+  tagSuffix: ""
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## Example:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+  ##
+  ## Enable debug mode
+  ##
+  debug: false
+
+## @param lifecycleHooks for the PostgreSQL container to automate configuration before or after startup
+##
+lifecycleHooks: {}
+
+## @param command Override default container command (useful when using custom images)
+##
+command: []
+## @param args Override default container args (useful when using custom images)
+##
+args: []
+## @param extraEnvVars Additional environment variables to set
+## Example:
+## extraEnvVars:
+##   - name: FOO
+##     value: "bar"
+##
+extraEnvVars: []
+
+# define environment variables here as a map of key: value
+env: {}
+
+## @param extraEnvVarsCM Name of a Config Map containing extra environment variables
+##
+extraEnvVarsCM: ""
+## @param extraEnvVarsSecret Name of existing Secret containing extra env vars
+##
+extraEnvVarsSecret: ""
+
+## @section flowxAppCamelCase deployment parameters
+
+## @param replicaCount Number of flowxAppCamelCase replicas to deploy
+## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
+##
+replicaCount: 1
+## @param updateStrategy.type flowxAppCamelCase deployment strategy type
+## @param updateStrategy.rollingUpdate flowxAppCamelCase deployment rolling update configuration parameters
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+## NOTE: Set it to `Recreate` if you use a PV that cannot be mounted on multiple pods
+## e.g:
+##
+# updateStrategy:
+#  type: RollingUpdate
+#  rollingUpdate:
+#    maxSurge: 25%
+#    maxUnavailable: 25%
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate: {}
+
+## @param enableServiceLinks Whether information about services should be injected into pod's environment variable
+## The environment variables injected by service links are not used, but can lead to slow boot times or slow running of the scripts when there are many services in the current namespace.
+## If you experience slow pod startups or slow running of the scripts you probably want to set this to `false`.
+##
+enableServiceLinks: false
+
+## @param schedulerName Alternate scheduler
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+##
+schedulerName: ""
+
+
+
+## PodSecurityPolicy configuration
+## ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+##
+podSecurityPolicy:
+  ## @param podSecurityPolicy.create Specifies whether a PodSecurityPolicy should be created (set `podSecurityPolicy.enabled` to `true` to enable it)
+  ##
+  create: false
+  ## @param podSecurityPolicy.enabled Enable PodSecurityPolicy
+  ##
+  enabled: false
+
+
+## RBAC configuration
+##
+rbac:
+  ## @param rbac.create Specifies whether RBAC resources should be created
+  ##
+  create: false
+  ## @param rbac.rules Custom RBAC rules to set
+  ## e.g:
+  ## rules:
+  ##   - apiGroups:
+  ##       - ""
+  ##     resources:
+  ##       - pods
+  ##     verbs:
+  ##       - get
+  ##       - list
+  ##
+  rules: []
+
+## ServiceAccount configuration
+##
+serviceAccount:
+  ## @param serviceAccount.create Specifies whether a ServiceAccount should be created
+  ##
+  create: true
+  ## @param serviceAccount.enabled (Legacy Helm) Specifies whether a ServiceAccount should be created
+  ##
+  enabled: true
+  ## @param serviceAccount.name The name of the ServiceAccount to use.
+  ## If not set and create is true, a name is generated using the common.names.fullname template
+  ##
+  name: ""
+  ## @param serviceAccount.automountServiceAccountToken Whether to auto mount the service account token
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#use-the-default-service-account-to-access-the-api-server
+  ##
+  automountServiceAccountToken: true
+  ## @param serviceAccount.annotations Additional custom annotations for the ServiceAccount
+  ##
+  ##  iam.gke.io/gcp-service-account: my-sa-in-gke
+  annotations: {}
+  ## @param serviceAccount.labels Additional custom labels for the ServiceAccount
+  ##
+  labels: {}
+
+
+
+
+## @param hostAliases [array] flowxAppCamelCase pod host aliases
+## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+##
+hostAliases: []
+## @param extraVolumes Optionally specify extra list of additional volumes for flowxAppCamelCase pods
+##
+extraVolumes: []
+## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for flowxAppCamelCase container(s)
+##
+extraVolumeMounts: []
+
+
+## @param sidecars Add additional sidecar containers to the flowxAppCamelCase pod
+## e.g:
+##
+# sidecars:
+#   - name: your-image-name
+#     image: your-image
+#     imagePullPolicy: Always
+#     ports:
+#       - name: portname
+#         containerPort: 1234
+sidecars: []
+## @param initContainers Add additional init containers to the flowxAppCamelCase pods
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+## e.g:
+##
+## initContainers:
+# - name: your-image-name
+#    image: your-image
+#    imagePullPolicy: Always
+#    command: ['sh', '-c', 'copy addons from git and push to /flowxApp/plugins. Should work with extraVolumeMounts and extraVolumes']
+initContainers: []
+
+## @param podLabels Extra labels for flowxAppCamelCase pods
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+##
+podLabels:
+  app.kubernetes.io/release: 0.0.1-FLOWXRELEASE
+  app.kubernetes.io/version: 0.0.1-FLOWXVERSION
+## @param podAnnotations Annotations for flowxAppCamelCase pods
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+##
+podAnnotations: {}
+## @param podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+##
+podAffinityPreset: ""
+## @param podAntiAffinityPreset Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+##
+podAntiAffinityPreset: soft
+## Node affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+##
+nodeAffinityPreset:
+  ## @param nodeAffinityPreset.type Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+  ##
+  type: ""
+  ## @param nodeAffinityPreset.key Node label key to match. Ignored if `affinity` is set
+  ##
+  key: ""
+  ## @param nodeAffinityPreset.values Node label values to match. Ignored if `affinity` is set
+  ## E.g.
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  ##
+  values: []
+## @param affinity Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## NOTE: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+##
+affinity: {}
+## @param nodeSelector Node labels for pod assignment
+## ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+## @param tolerations Tolerations for pod assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+## @param topologySpreadConstraints Topology Spread Constraints for pod assignment
+## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+##
+## topologySpreadConstraints:
+##   - maxSkew: 1
+##     topologyKey: failure-domain.beta.kubernetes.io/zone
+##     whenUnsatisfiable: DoNotSchedule
+##
+topologySpreadConstraints: []
+## flowxAppCamelCase containers' resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+## @param resources.limits The resources limits for the flowxAppCamelCase container
+## @param resources.requests [object] The requested resources for the flowxAppCamelCase container
+##
+resources:
+  limits: {}
+##    memory: 512Mi
+##    cpu: 300m
+  requests: {}
+##    memory: 512Mi
+##    cpu: 300m
+
+## Configure Pods Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## @param podSecurityContext.enabled Enabled flowxAppCamelCase pods' Security Context
+## @param podSecurityContext.fsGroup Set flowxAppCamelCase pod's Security Context fsGroup
+##
+podSecurityContext:
+  enabled: false
+  fsGroup: 1001
+
+## Configure Container Security Context (only main container)
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+## @param containerSecurityContext.enabled Enabled flowxAppCamelCase containers' Security Context
+## @param containerSecurityContext.runAsUser Set flowxAppCamelCase container's Security Context runAsUser
+##
+containerSecurityContext:
+  enabled: false
+  runAsUser: 1001
+
+## Configure extra options for flowxAppCamelCase containers' liveness and readiness probes
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+## @param livenessProbe.enabled Enable livenessProbe
+## @param livenessProbe.path Path for to check for livenessProbe
+## @param livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+## @param livenessProbe.periodSeconds Period seconds for livenessProbe
+## @param livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+## @param livenessProbe.failureThreshold Failure threshold for livenessProbe
+## @param livenessProbe.successThreshold Success threshold for livenessProbe
+##
+livenessProbe:
+  enabled: true
+  path: /manage/actuator/health/liveness
+  port: mngt
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+## @param readinessProbe.enabled Enable readinessProbe
+## @param readinessProbe.path Path to check for readinessProbe
+## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+## @param readinessProbe.periodSeconds Period seconds for readinessProbe
+## @param readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+## @param readinessProbe.failureThreshold Failure threshold for readinessProbe
+## @param readinessProbe.successThreshold Success threshold for readinessProbe
+##
+readinessProbe:
+  enabled: true
+  path: /manage/actuator/health/readiness
+  port: mngt
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+## @param startupProbe.enabled Enable startupProbe
+## @param startupProbe.path Path to check for startupProbe
+## @param startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+## @param startupProbe.periodSeconds Period seconds for startupProbe
+## @param startupProbe.timeoutSeconds Timeout seconds for startupProbe
+## @param startupProbe.failureThreshold Failure threshold for startupProbe
+## @param startupProbe.successThreshold Success threshold for startupProbe
+##
+startupProbe:
+  enabled: true
+  path: /manage/actuator/health/liveness
+  port: mngt
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 60
+  successThreshold: 1
+## @param customLivenessProbe Custom livenessProbe that overrides the default one
+##
+customLivenessProbe: {}
+## @param customReadinessProbe Custom readinessProbe that overrides the default one
+##
+customReadinessProbe: {}
+## @param customStartupProbe Custom startupProbe that overrides the default one
+##
+customStartupProbe: {}
+
+## @section Traffic Exposure Parameters
+
+## Container ports
+## @param containerPort flowxAppCamelCase HTTP container port
+##
+containerPort: 8080
+
+## flowxAppCamelCase service parameters
+##
+service:
+  ## @param service.type flowxAppCamelCase service type
+  ##
+  type: "ClusterIP"
+
+  ## @param service.ports.http [object] Logstash svc ports
+  ##
+  ports:
+    http:
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+
+  ## Node ports to expose
+  ## @param service.nodePort Node port for HTTP
+  ## NOTE: choose port between <30000-32767>
+  ##
+  nodePort: ""
+  ## @param service.clusterIP flowxAppCamelCase service Cluster IP
+  ## e.g.:
+  ## clusterIP: None
+  ##
+  clusterIP: ""
+  ## @param service.loadBalancerIP flowxAppCamelCase service Load Balancer IP
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
+  ##
+  loadBalancerIP: ""
+  ## @param service.loadBalancerSourceRanges flowxAppCamelCase service Load Balancer sources
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## e.g:
+  ##
+  # loadBalancerSourceRanges:
+  #   - 10.10.10.0/24
+  loadBalancerSourceRanges: []
+  ## @param service.externalTrafficPolicy flowxAppCamelCase service external traffic policy
+  ## ref http://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  ##
+  externalTrafficPolicy: Cluster
+  ## @param service.annotations Additional custom annotations for flowxAppCamelCase service
+  ##
+  annotations:
+    fabric8.io/expose: "false"
+  ## @param service.labels Additional custom labels for flowxAppCamelCase service
+  ##
+  labels: {}
+  ## @param service.extraPorts Extra port to expose on flowxAppCamelCase service
+  ##
+  extraPorts: []
+
+## Configure mngt endpoint
+##
+mngt:
+  ## @param mngt.enabled Start a prometheus exporter
+  ##
+  enabled: true
+  ## @param mngt.service.type Kubernetes Service type
+  ## @param mngt.service.annotations [object] Additional annotations for mngt exporter pod
+  ## @param mngt.service.loadBalancerIP loadBalancerIP if flowxApp mngt service type is `LoadBalancer`
+  ##
+  service:
+    ## @param service.type flowxAppCamelCase service type
+    ##
+    type: "ClusterIP"
+
+    ## @param service.ports.http [object] Logstash svc ports
+    ##
+    ports:
+      mngt:
+        port: 8081
+        targetPort: 8081
+        protocol: TCP
+
+    ## @param service.clusterIP flowxAppCamelCase service Cluster IP
+    ## e.g.:
+    ## clusterIP: None
+    ##
+    clusterIP: ""
+    ## @param service.annotations Additional custom annotations for flowxAppCamelCase service
+    ##
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8081"
+      prometheus.io/path: "/manage/actuator/prometheus"
+      flowx.ai/health: "true"
+    ## @param service.labels Additional custom labels for flowxAppCamelCase service
+    ##
+    labels: {}
+
+
+## Configure the ingress resource that allows you to access the flowxAppCamelCase installation
+## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+##
+ingress:
+  ## @param ingress.enabled Enable ingress record generation for flowxAppCamelCase
+  ##
+  enabled: false
+
+  ## @param ingress.commonAnnotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  commonAnnotations: {}
+  
+  ## @param ingress.annotations Default path for the ingress record
+  annotations: {}
+  # defaults to nginx if no other ingress class annotation specified
+  classAnnotation: ""
+  # Add labels to the ingress
+  labels: {}
+
+  # ingress path type
+  pathType: ImplementationSpecific
+
+  public:
+    ## @param ingress.enabled Enable ingress record generation for flowxAppCamelCase
+    ##
+    enabled: false
+    ## @param ingress.public.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+    ##
+    selfSigned: false
+    ## @param ingress.public.pathType Ingress path type
+    ##
+    pathType: ImplementationSpecific
+    ## @param ingress.public.apiVersion Force Ingress API version (automatically detected if not set)
+    ##
+    apiVersion: ""
+    ## @param ingress.public.hostname Default host for the ingress record
+    ##
+    hostname: flowxApp.local
+    ## @param ingress.public.path Default path for the ingress record
+    ## NOTE: You may need to set this to '/*' in order to use this with ALB ingress controllers
+    ##
+    path: /
+    ## @param ingress.public.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ## Use this parameter to set the required annotations for cert-manager, see
+    ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    ##
+    ## e.g:
+    ## annotations:
+    ##   kubernetes.io/ingress.class: nginx
+    ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+    ##
+    annotations: {}
+    ## @param ingress.public.tls Enable TLS configuration for the host defined at `ingress.public.hostname` parameter
+    ## TLS certificates will be retrieved from a TLS secret with name: `{{- printf "%s-tls" .Values.ingress.public.hostname }}`
+    ## You can:
+    ##   - Use the `ingress.public.secrets` parameter to create this TLS secret
+    ##   - Relay on cert-manager to create it by setting the corresponding annotations
+    ##   - Relay on Helm to create self-signed certificates by setting `ingress.public.tls=true` and `ingress.public.certManager=false`
+    ##
+    tls: false
+    ## @param ingress.public.extraHosts An array with additional hostname(s) to be covered with the ingress record
+    ## e.g:
+    ##
+    # extraHosts:
+    #   - name: flowxApp.local
+    #     path: /
+    extraHosts: []
+    ## @param ingress.public.extraPaths An array with additional arbitrary paths that may need to be added to the ingress under the main host
+    ## e.g:
+    ##
+    # extraPaths:
+    # - path: /*
+    #   backend:
+    #     serviceName: ssl-redirect
+    #     servicePort: use-annotation
+    extraPaths: []
+    ## @param ingress.public.extraTls TLS configuration for additional hostname(s) to be covered with this ingress record
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+    ## e.g:
+    ##
+    # extraTls:
+    # - hosts:
+    #     - flowxApp.local
+    #   secretName: flowxApp.local-tls
+    extraTls: []
+    ## @param ingress.public.secrets Custom TLS certificates as secrets
+    ## NOTE: 'key' and 'certificate' are expected in PEM format
+    ## NOTE: 'name' should line up with a 'secretName' set further up
+    ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
+    ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
+    ## It is also possible to create and manage the certificates outside of this helm chart
+    ## Please see README.md for more information
+    ## e.g:
+    ##
+    # secrets:
+    #   - name: flowxApp.local-tls
+    #     key: |-
+    #       -----BEGIN RSA PRIVATE KEY-----
+    #       ...
+    #       -----END RSA PRIVATE KEY-----
+    #     certificate: |-
+    #       -----BEGIN CERTIFICATE-----
+    #       ...
+    #       -----END CERTIFICATE-----
+    secrets: []
+
+  admin:
+    ## @param ingress.admin.enabled Enable ingress record generation for flowxAppCamelCase
+    ##
+    enabled: true
+    ## @param ingress.admin.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+    ##
+    selfSigned: false
+    ## @param ingress.admin.pathType Ingress path type
+    ##
+    pathType: ImplementationSpecific
+    ## @param ingress.admin.apiVersion Force Ingress API version (automatically detected if not set)
+    ##
+    apiVersion: ""
+    ## @param ingress.admin.hostname Default host for the ingress record
+    ##
+    hostname: flowxApp.local
+    ## @param ingress.admin.path Default path for the ingress record
+    ## NOTE: You may need to set this to '/*' in order to use this with ALB ingress controllers
+    ##
+    path: /integration(/|$)(.*)
+    ## @param ingress.admin.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ## Use this parameter to set the required annotations for cert-manager, see
+    ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    ##
+    ## e.g:
+    ## annotations:
+    ##   kubernetes.io/ingress.class: nginx
+    ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+    ##
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    ## @param ingress.admin.tls Enable TLS configuration for the host defined at `ingress.admin.hostname` parameter
+    ## TLS certificates will be retrieved from a TLS secret with name: `{{- printf "%s-tls" .Values.ingress.admin.hostname }}`
+    ## You can:
+    ##   - Use the `ingress.admin.secrets` parameter to create this TLS secret
+    ##   - Relay on cert-manager to create it by setting the corresponding annotations
+    ##   - Relay on Helm to create self-signed certificates by setting `ingress.admin.tls=true` and `ingress.admin.certManager=false`
+    ##
+    tls: false
+    ## @param ingress.admin.extraHosts An array with additional hostname(s) to be covered with the ingress record
+    ## e.g:
+    ##
+    # extraHosts:
+    #   - name: flowxApp.local
+    #     path: /
+    extraHosts: []
+    ## @param ingress.admin.extraPaths An array with additional arbitrary paths that may need to be added to the ingress under the main host
+    ## e.g:
+    ##
+    # extraPaths:
+    # - path: /*
+    #   backend:
+    #     serviceName: ssl-redirect
+    #     servicePort: use-annotation
+    extraPaths: []
+    ## @param ingress.admin.extraTls TLS configuration for additional hostname(s) to be covered with this ingress record
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+    ## e.g:
+    ##
+    # extraTls:
+    # - hosts:
+    #     - flowxApp.local
+    #   secretName: flowxApp.local-tls
+    extraTls: []
+    ## @param ingress.admin.secrets Custom TLS certificates as secrets
+    ## NOTE: 'key' and 'certificate' are expected in PEM format
+    ## NOTE: 'name' should line up with a 'secretName' set further up
+    ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
+    ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
+    ## It is also possible to create and manage the certificates outside of this helm chart
+    ## Please see README.md for more information
+    ## e.g:
+    ##
+    # secrets:
+    #   - name: flowxApp.local-tls
+    #     key: |-
+    #       -----BEGIN RSA PRIVATE KEY-----
+    #       ...
+    #       -----END RSA PRIVATE KEY-----
+    #     certificate: |-
+    #       -----BEGIN CERTIFICATE-----
+    #       ...
+    #       -----END CERTIFICATE-----
+    secrets: []
+
+  adminInstances:
+    ## @param ingress.adminInstances.enabled Enable ingress record generation for flowxAppCamelCase
+    ##
+    enabled: false
+    ## @param ingress.adminInstances.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+    ##
+    selfSigned: false
+    ## @param ingress.adminInstances.pathType Ingress path type
+    ##
+    pathType: ImplementationSpecific
+    ## @param ingress.adminInstances.apiVersion Force Ingress API version (automatically detected if not set)
+    ##
+    apiVersion: ""
+    ## @param ingress.adminInstances.hostname Default host for the ingress record
+    ##
+    hostname: flowxApp.local
+    ## @param ingress.adminInstances.path Default path for the ingress record
+    ## NOTE: You may need to set this to '/*' in order to use this with ALB ingress controllers
+    ##
+    path: /
+    ## @param ingress.adminInstances.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ## Use this parameter to set the required annotations for cert-manager, see
+    ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    ##
+    ## e.g:
+    ## annotations:
+    ##   kubernetes.io/ingress.class: nginx
+    ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+    ##
+    annotations: {}
+    ## @param ingress.adminInstances.tls Enable TLS configuration for the host defined at `ingress.adminInstances.hostname` parameter
+    ## TLS certificates will be retrieved from a TLS secret with name: `{{- printf "%s-tls" .Values.ingress.adminInstances.hostname }}`
+    ## You can:
+    ##   - Use the `ingress.adminInstances.secrets` parameter to create this TLS secret
+    ##   - Relay on cert-manager to create it by setting the corresponding annotations
+    ##   - Relay on Helm to create self-signed certificates by setting `ingress.adminInstances.tls=true` and `ingress.adminInstances.certManager=false`
+    ##
+    tls: false
+    ## @param ingress.adminInstances.extraHosts An array with additional hostname(s) to be covered with the ingress record
+    ## e.g:
+    ##
+    # extraHosts:
+    #   - name: flowxApp.local
+    #     path: /
+    extraHosts: []
+    ## @param ingress.adminInstances.extraPaths An array with additional arbitrary paths that may need to be added to the ingress under the main host
+    ## e.g:
+    ##
+    # extraPaths:
+    # - path: /*
+    #   backend:
+    #     serviceName: ssl-redirect
+    #     servicePort: use-annotation
+    extraPaths: []
+    ## @param ingress.adminInstances.extraTls TLS configuration for additional hostname(s) to be covered with this ingress record
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+    ## e.g:
+    ##
+    # extraTls:
+    # - hosts:
+    #     - flowxApp.local
+    #   secretName: flowxApp.local-tls
+    extraTls: []
+    ## @param ingress.adminInstances.secrets Custom TLS certificates as secrets
+    ## NOTE: 'key' and 'certificate' are expected in PEM format
+    ## NOTE: 'name' should line up with a 'secretName' set further up
+    ## If it is not set and you're using cert-manager, this is unneeded, as it will create a secret for you with valid certificates
+    ## If it is not set and you're NOT using cert-manager either, self-signed certificates will be created valid for 365 days
+    ## It is also possible to create and manage the certificates outside of this helm chart
+    ## Please see README.md for more information
+    ## e.g:
+    ##
+    # secrets:
+    #   - name: flowxApp.local-tls
+    #     key: |-
+    #       -----BEGIN RSA PRIVATE KEY-----
+    #       ...
+    #       -----END RSA PRIVATE KEY-----
+    #     certificate: |-
+    #       -----BEGIN CERTIFICATE-----
+    #       ...
+    #       -----END CERTIFICATE-----
+    secrets: []
+
+## @section Other Parameters
+
+## flowxAppCamelCase Pod Disruption Budget configuration
+## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+## @param podDisruptionBudget.create Enable a Pod Disruption Budget creation
+## @param podDisruptionBudget.minAvailable Minimum number/percentage of pods that should remain scheduled
+## @param podDisruptionBudget.maxUnavailable Maximum number/percentage of pods that may be made unavailable
+##
+podDisruptionBudget:
+  create: false
+  minAvailable: "1"
+  maxUnavailable: ""
+
+
+## flowxAppCamelCase Autoscaling configuration
+## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+## @param autoscaling.enabled Enable Horizontal POD autoscaling for flowxAppCamelCase
+## @param autoscaling.minReplicas Minimum number of flowxAppCamelCase replicas
+## @param autoscaling.maxReplicas Maximum number of flowxAppCamelCase replicas
+## @param autoscaling.targetCPU Target CPU utilization percentage
+## @param autoscaling.targetMemory Target Memory utilization percentage
+##
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPU: 50
+  targetMemory: 50
+
+
+networkPolicy:
+  ## @param networkPolicy.enabled Enable creation of NetworkPolicy resources. Only Ingress traffic is filtered for now.
+  ##
+  enabled: false
+  ## @param networkPolicy.allowExternal Don't require client label for connections
+  ## The Policy model to apply. When set to false, only pods with the correct
+  ## client label will have network access to the port PostgreSQL is listening
+  ## on. When true, PostgreSQL will accept connections from any source
+  ## (with the correct destination port).
+  ##
+  allowExternal: true
+  ## @param networkPolicy.explicitNamespacesSelector A Kubernetes LabelSelector to explicitly select namespaces from which ingress traffic could be allowed
+  ## If explicitNamespacesSelector is missing or set to {}, only client Pods that are in the networkPolicy's namespace
+  ## and that match other criteria, the ones that have the good label, can reach the DB.
+  ## But sometimes, we want the DB to be accessible to clients from other namespaces, in this case, we can use this
+  ## LabelSelector to select these namespaces, note that the networkPolicy's namespace should also be explicitly added.
+  ##
+  ## Example:
+  ## explicitNamespacesSelector:
+  ##   matchLabels:
+  ##     role: frontend
+  ##   matchExpressions:
+  ##    - {key: role, operator: In, values: [frontend]}
+  ##
+  explicitNamespacesSelector: {}
+
+
+## @section Database Parameters
+## External Database Configuration
+## All of these values are only used when postgresql.enabled is set to false
+externalDatabase:
+  ## @param externalDatabase.host External Database server host
+  ##
+  host: ""
+  ## @param externalDatabase.port External Database server port
+  ##
+  port: 5432
+  ## @param externalDatabase.user External Database username
+  ##
+  user: flowx
+  ## @param externalDatabase.password External Database user password
+  ##
+  password: ""
+  ## @param externalDatabase.database External Database database name
+  ##
+  database: flowx
+  ## @param externalDatabase.existingSecret Use an existing secret for external db password. Must contain the keys `flowxApp-password` or `mariadb-password` depending on the DB type
+  ##
+  # existingSecret: my-secret
+  existingSecret: ""
+
+## Configure metrics exporter
+##
+metrics:
+  ## @param metrics.enabled Start a prometheus exporter
+  ##
+  enabled: false
+  ## @param metrics.resources Prometheus exporter container resources
+  ##
+  ## @param metrics.serviceMonitor.enabled Set this to `true` to create ServiceMonitor for Prometheus operator
+  ## @param metrics.serviceMonitor.additionalLabels Additional labels that can be used so ServiceMonitor will be discovered by Prometheus
+  ## @param metrics.serviceMonitor.namespace Optional namespace in which to create ServiceMonitor
+  ## @param metrics.serviceMonitor.interval Scrape interval. If not set, the Prometheus default scrape interval is used
+  ## @param metrics.serviceMonitor.scrapeTimeout Scrape timeout. If not set, the Prometheus default scrape timeout is used
+  ## @param metrics.serviceMonitor.relabelings RelabelConfigs to apply to samples before scraping
+  ## @param metrics.serviceMonitor.metricRelabelings MetricRelabelConfigs to apply to samples before ingestion
+  ##
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+    namespace: ""
+    interval: "30s"
+    scrapeTimeout: "10s"
+    relabelings: []
+    metricRelabelings: []
+  ## Custom PrometheusRule to be defined
+  ## The value is evaluated as a template, so, for example, the value can depend on .Release or .Chart
+  ## ref: https://github.com/coreos/prometheus-operator#customresourcedefinitions
+  ##
+  prometheusRule:
+    ## @param metrics.prometheusRule.enabled Set this to true to create prometheusRules for Prometheus operator
+    ##
+    enabled: false
+    ## @param metrics.prometheusRule.additionalLabels Additional labels that can be used so prometheusRules will be discovered by Prometheus
+    ##
+    additionalLabels: {}
+    ## @param metrics.prometheusRule.namespace namespace where prometheusRules resource should be created
+    ##
+    namespace: ""
+    ## @param metrics.prometheusRule.rules [Rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) to be created
+    ## Make sure to constraint the rules to the current postgresql service.
+    ## rules:
+    ##   - alert: HugeReplicationLag
+    ##     expr: pg_replication_lag{service="{{ template "common.names.fullname" . }}-metrics"} / 3600 > 1
+    ##     for: 1m
+    ##     labels:
+    ##       severity: critical
+    ##     annotations:
+    ##       description: replication for {{ template "common.names.fullname" . }} PostgreSQL is lagging by {{ "{{ $value }}" }} hour(s).
+    ##       summary: PostgreSQL replication is lagging by {{ "{{ $value }}" }} hour(s).
+    ##
+    rules: []
+
+## Strimzi Kafka Topics chart configuration
+kafkaTopics:
+  enabled: false
+  clusterName: false
+  namespace: 
+  topicDefaults:
+    partitions: 3
+    replicas: 3
+    retention:
+      ms: "7200000"
+    segment:
+      bytes: "1073741824"
+  topics:
+    - ai.flowx.generic.topic.in.v1
+    - ai.flowx.generic.topic.out.v1

@@ -1,0 +1,17 @@
+apiVersion: config.lighthouse.jenkins-x.io/v1alpha1
+kind: TriggerConfig
+spec:
+  presubmits:
+  - name: pr
+    context: "pr"
+    always_run: true
+    optional: false
+    source: "pullrequest.yaml"
+  postsubmits:
+  - name: release
+    context: "release"
+    source: "release.yaml"
+    run_if_changed: '^(charts|.lighthouse.*(release.yaml)|src|Dockerfile|pom.xml|(README|readme)\.md).*$'
+    branches:
+    - ^main$
+    - ^master$
