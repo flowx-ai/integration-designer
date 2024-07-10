@@ -6,7 +6,7 @@
 
     <groupId>ai.flowx.integration.designer</groupId>
     <artifactId>integration-designer</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>FlowX Integration Designer Service</name>
 

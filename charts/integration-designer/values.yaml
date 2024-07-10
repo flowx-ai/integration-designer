@@ -16,7 +16,6 @@ global:
   imagePullSecrets: []
   imageTagSuffix: ""
   storageClass: ""
-
 ## @section Common parameters
 
 ## @param kubeVersion Override Kubernetes version
@@ -31,15 +30,14 @@ fullnameOverride: ""
 ## @param commonLabels Labels to add to all deployed objects
 ##
 commonLabels:
-  app.kubernetes.io/release: 0.0.1-FLOWXRELEASE
-  app.kubernetes.io/version: 0.0.1-FLOWXVERSION
+  app.kubernetes.io/release: 0.0.1
+  app.kubernetes.io/version: 0.0.2
 ## @param commonAnnotations Annotations to add to all deployed objects
 ##
 commonAnnotations: {}
 ## @param extraDeploy Array of extra objects to deploy with the release
 ##
 extraDeploy: []
-
 ## Image version
 ## @param image.registry image registry
 ## @param image.repository image repository
@@ -49,10 +47,9 @@ extraDeploy: []
 ## @param image.pullSecrets Specify image pull secrets
 ## @param image.debug Specify if debug values should be set
 ##
-
 image:
-  repository: integration-designer
-  tag: dev
+  repository: gcr.io/prj-cicd-d-flowxai-jx-6401/integration-designer
+  tag: 0.0.2
   tagSuffix: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -71,11 +68,9 @@ image:
   ## Enable debug mode
   ##
   debug: false
-
 ## @param lifecycleHooks for the PostgreSQL container to automate configuration before or after startup
 ##
 lifecycleHooks: {}
-
 ## @param command Override default container command (useful when using custom images)
 ##
 command: []
@@ -89,17 +84,14 @@ args: []
 ##     value: "bar"
 ##
 extraEnvVars: []
-
 # define environment variables here as a map of key: value
 env: {}
-
 ## @param extraEnvVarsCM Name of a Config Map containing extra environment variables
 ##
 extraEnvVarsCM: ""
 ## @param extraEnvVarsSecret Name of existing Secret containing extra env vars
 ##
 extraEnvVarsSecret: ""
-
 ## @section flowxAppCamelCase deployment parameters
 
 ## @param replicaCount Number of flowxAppCamelCase replicas to deploy
@@ -120,20 +112,15 @@ replicaCount: 1
 updateStrategy:
   type: RollingUpdate
   rollingUpdate: {}
-
 ## @param enableServiceLinks Whether information about services should be injected into pod's environment variable
 ## The environment variables injected by service links are not used, but can lead to slow boot times or slow running of the scripts when there are many services in the current namespace.
 ## If you experience slow pod startups or slow running of the scripts you probably want to set this to `false`.
 ##
 enableServiceLinks: false
-
 ## @param schedulerName Alternate scheduler
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 ##
 schedulerName: ""
-
-
-
 ## PodSecurityPolicy configuration
 ## ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
 ##
@@ -144,8 +131,6 @@ podSecurityPolicy:
   ## @param podSecurityPolicy.enabled Enable PodSecurityPolicy
   ##
   enabled: false
-
-
 ## RBAC configuration
 ##
 rbac:
@@ -164,7 +149,6 @@ rbac:
   ##       - list
   ##
   rules: []
-
 ## ServiceAccount configuration
 ##
 serviceAccount:
@@ -189,10 +173,6 @@ serviceAccount:
   ## @param serviceAccount.labels Additional custom labels for the ServiceAccount
   ##
   labels: {}
-
-
-
-
 ## @param hostAliases [array] flowxAppCamelCase pod host aliases
 ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
 ##
@@ -203,8 +183,6 @@ extraVolumes: []
 ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for flowxAppCamelCase container(s)
 ##
 extraVolumeMounts: []
-
-
 ## @param sidecars Add additional sidecar containers to the flowxAppCamelCase pod
 ## e.g:
 ##
@@ -226,13 +204,12 @@ sidecars: []
 #    imagePullPolicy: Always
 #    command: ['sh', '-c', 'copy addons from git and push to /flowxApp/plugins. Should work with extraVolumeMounts and extraVolumes']
 initContainers: []
-
 ## @param podLabels Extra labels for flowxAppCamelCase pods
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 ##
 podLabels:
-  app.kubernetes.io/release: 0.0.1-FLOWXRELEASE
-  app.kubernetes.io/version: 0.0.1-FLOWXVERSION
+  app.kubernetes.io/release: 0.0.1
+  app.kubernetes.io/version: 0.0.2
 ## @param podAnnotations Annotations for flowxAppCamelCase pods
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 ##
@@ -291,8 +268,8 @@ topologySpreadConstraints: []
 ##
 resources:
   limits: {}
-##    memory: 512Mi
-##    cpu: 300m
+  ##    memory: 512Mi
+  ##    cpu: 300m
   requests: {}
 ##    memory: 512Mi
 ##    cpu: 300m
@@ -305,7 +282,6 @@ resources:
 podSecurityContext:
   enabled: false
   fsGroup: 1001
-
 ## Configure Container Security Context (only main container)
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## @param containerSecurityContext.enabled Enabled flowxAppCamelCase containers' Security Context
@@ -314,7 +290,6 @@ podSecurityContext:
 containerSecurityContext:
   enabled: false
   runAsUser: 1001
-
 ## Configure extra options for flowxAppCamelCase containers' liveness and readiness probes
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
 ## @param livenessProbe.enabled Enable livenessProbe
@@ -377,21 +352,18 @@ customReadinessProbe: {}
 ## @param customStartupProbe Custom startupProbe that overrides the default one
 ##
 customStartupProbe: {}
-
 ## @section Traffic Exposure Parameters
 
 ## Container ports
 ## @param containerPort flowxAppCamelCase HTTP container port
 ##
 containerPort: 8080
-
 ## flowxAppCamelCase service parameters
 ##
 service:
   ## @param service.type flowxAppCamelCase service type
   ##
   type: "ClusterIP"
-
   ## @param service.ports.http [object] Logstash svc ports
   ##
   ports:
@@ -399,7 +371,6 @@ service:
       port: 80
       targetPort: 8080
       protocol: TCP
-
   ## Node ports to expose
   ## @param service.nodePort Node port for HTTP
   ## NOTE: choose port between <30000-32767>
@@ -435,7 +406,6 @@ service:
   ## @param service.extraPorts Extra port to expose on flowxAppCamelCase service
   ##
   extraPorts: []
-
 ## Configure mngt endpoint
 ##
 mngt:
@@ -450,7 +420,6 @@ mngt:
     ## @param service.type flowxAppCamelCase service type
     ##
     type: "ClusterIP"
-
     ## @param service.ports.http [object] Logstash svc ports
     ##
     ports:
@@ -458,7 +427,6 @@ mngt:
         port: 8081
         targetPort: 8081
         protocol: TCP
-
     ## @param service.clusterIP flowxAppCamelCase service Cluster IP
     ## e.g.:
     ## clusterIP: None
@@ -474,8 +442,6 @@ mngt:
     ## @param service.labels Additional custom labels for flowxAppCamelCase service
     ##
     labels: {}
-
-
 ## Configure the ingress resource that allows you to access the flowxAppCamelCase installation
 ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ##
@@ -483,24 +449,20 @@ ingress:
   ## @param ingress.enabled Enable ingress record generation for flowxAppCamelCase
   ##
   enabled: false
-
   ## @param ingress.commonAnnotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
   ## For a full list of possible ingress annotations, please see
   ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
   ## Use this parameter to set the required annotations for cert-manager, see
   ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
   commonAnnotations: {}
-  
   ## @param ingress.annotations Default path for the ingress record
   annotations: {}
   # defaults to nginx if no other ingress class annotation specified
   classAnnotation: ""
   # Add labels to the ingress
   labels: {}
-
   # ingress path type
   pathType: ImplementationSpecific
-
   public:
     ## @param ingress.enabled Enable ingress record generation for flowxAppCamelCase
     ##
@@ -586,7 +548,6 @@ ingress:
     #       ...
     #       -----END CERTIFICATE-----
     secrets: []
-
   admin:
     ## @param ingress.admin.enabled Enable ingress record generation for flowxAppCamelCase
     ##
@@ -673,7 +634,6 @@ ingress:
     #       ...
     #       -----END CERTIFICATE-----
     secrets: []
-
   adminInstances:
     ## @param ingress.adminInstances.enabled Enable ingress record generation for flowxAppCamelCase
     ##
@@ -759,7 +719,6 @@ ingress:
     #       ...
     #       -----END CERTIFICATE-----
     secrets: []
-
 ## @section Other Parameters
 
 ## flowxAppCamelCase Pod Disruption Budget configuration
@@ -772,8 +731,6 @@ podDisruptionBudget:
   create: false
   minAvailable: "1"
   maxUnavailable: ""
-
-
 ## flowxAppCamelCase Autoscaling configuration
 ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
 ## @param autoscaling.enabled Enable Horizontal POD autoscaling for flowxAppCamelCase
@@ -788,8 +745,6 @@ autoscaling:
   maxReplicas: 5
   targetCPU: 50
   targetMemory: 50
-
-
 networkPolicy:
   ## @param networkPolicy.enabled Enable creation of NetworkPolicy resources. Only Ingress traffic is filtered for now.
   ##
@@ -815,8 +770,6 @@ networkPolicy:
   ##    - {key: role, operator: In, values: [frontend]}
   ##
   explicitNamespacesSelector: {}
-
-
 ## @section Database Parameters
 ## External Database Configuration
 ## All of these values are only used when postgresql.enabled is set to false
@@ -840,7 +793,6 @@ externalDatabase:
   ##
   # existingSecret: my-secret
   existingSecret: ""
-
 ## Configure metrics exporter
 ##
 metrics:
@@ -892,12 +844,11 @@ metrics:
     ##       summary: PostgreSQL replication is lagging by {{ "{{ $value }}" }} hour(s).
     ##
     rules: []
-
 ## Strimzi Kafka Topics chart configuration
 kafkaTopics:
   enabled: false
   clusterName: false
-  namespace: 
+  namespace:
   topicDefaults:
     partitions: 3
     replicas: 3
@@ -906,5 +857,5 @@ kafkaTopics:
     segment:
       bytes: "1073741824"
   topics:
-    - ai.flowx.generic.topic.in.v1
-    - ai.flowx.generic.topic.out.v1
+  - ai.flowx.generic.topic.in.v1
+  - ai.flowx.generic.topic.out.v1
