@@ -82,5 +82,3 @@ Describe the versioning model used.
 ## License
 
 TODO
-
-
