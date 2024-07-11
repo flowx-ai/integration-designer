@@ -18,7 +18,7 @@ security:
     - path: "/api/**"
       rolesAllowed: "ANY_AUTHENTICATED_USER"
   accessAuthorizations:
-    manage-products:
+    manage-integrations:
       scopes:
         import:
           description: "Import access"
