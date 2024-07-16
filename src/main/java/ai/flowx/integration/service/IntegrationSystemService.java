@@ -28,6 +28,7 @@ public class IntegrationSystemService {
     private final IntegrationSystemMapper integrationSystemMapper;
     private final AuthorizationMapper authorizationMapper;
     private final VariableMapper variableMapper;
+    private final EndpointService endpointService;
 
     public List<IntegrationSystemSummaryDTO> getAllSystemSummaries() {
         return integrationSystemRepository.findAllSummaries().stream()
@@ -37,7 +38,11 @@ public class IntegrationSystemService {
 
     public Optional<IntegrationSystemDTO> findOneById(String systemId) {
         return integrationSystemRepository.findById(systemId)
-                .map(integrationSystemMapper::toDto);
+                .map(integrationSystemMapper::toDto)
+                .map(dto -> {
+                    dto.setEndpoints(endpointService.getAllEndpointsBySystemId(dto.getId()));
+                    return dto;
+                });
     }
 
     public IntegrationSystemSummaryDTO save(IntegrationSystemSummaryDTO systemSummaryDTO) {

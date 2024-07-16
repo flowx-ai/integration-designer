@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "integration_systems")

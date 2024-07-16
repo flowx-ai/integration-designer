@@ -3,7 +3,6 @@ package ai.flowx.integration.domain;
 import ai.flowx.commons.definitions.audit.domain.BaseAuditableEntity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,6 +26,7 @@ public class Endpoint extends BaseAuditableEntity implements Serializable {
     private List<EndpointParam> headers;
     private List<EndpointParam> queryParameters;
     private List<EndpointResponse> responses;
+    private String systemId;
 }
 
 
