@@ -14,5 +14,5 @@ public class VariableDTO {
     private String key;
     private String type;
     private String value;
-    private List<String> environments;
+    private String description;
 }

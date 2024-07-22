@@ -6,23 +6,27 @@ import ai.flowx.integration.config.audit.AuditUtils;
 import ai.flowx.integration.domain.Endpoint;
 import ai.flowx.integration.domain.EndpointParam;
 import ai.flowx.integration.domain.EndpointResponse;
+import ai.flowx.integration.domain.EndpointWithSystemSummary;
 import ai.flowx.integration.dto.enums.ParamType;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.ENDPOINT_NOT_UPDATED;
 import static ai.flowx.integration.repository.EndpointFieldNames.*;
 import static ai.flowx.integration.repository.EndpointFieldNames.ID;
 import static ai.flowx.integration.repository.EndpointFieldNames.MODIFIED_BY;
 import static ai.flowx.integration.repository.EndpointFieldNames.MODIFIED_DATE;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.addFields;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,6 +39,7 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
         updateQuery.addCriteria(Criteria.where(ID).is(entity.getId()));
         Update update = new Update();
         update.set(NAME, entity.getName());
+        update.set(DESCRIPTION, entity.getDescription());
         update.set(URL, entity.getUrl());
         update.set(HTTP_METHOD, entity.getHttpMethod());
         update.set(PAYLOAD, entity.getPayload());
@@ -107,6 +112,24 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
 
         Update update = new Update().pull(RESPONSES, arrayQuery);
         executeUpdate(updateQuery, update);
+    }
+
+    @Override
+    public Optional<EndpointWithSystemSummary> getEndpointWithSystemSummary(String endpointId) {
+        AggregationOperation addFields = addFields()
+                .addFieldWithValue("convertedSystemId", ConvertOperators.ToObjectId.toObjectId("$systemId"))
+                .build();
+        LookupOperation lookupOperation = LookupOperation.newLookup()
+                .from(IntegrationSystemFieldNames.COLLECTION_NAME)
+                .localField("convertedSystemId")
+                .foreignField("_id")
+                .as("system");
+
+        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(ID).is(endpointId)), addFields,
+                lookupOperation, Aggregation.unwind("system"));
+
+        AggregationResults<EndpointWithSystemSummary> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystemSummary.class);
+        return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
     }
 
     private void executeUpdate(Query updateQuery, Update update) {

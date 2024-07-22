@@ -20,11 +20,13 @@ public class Endpoint extends BaseAuditableEntity implements Serializable {
     private String id;
     private String flowxUuid;
     private String name;
+    private String description;
     private String url;
     private HttpMethod httpMethod;
     private String payload;
     private List<EndpointParam> headers;
     private List<EndpointParam> queryParameters;
+    private List<EndpointParam> pathParameters;
     private List<EndpointResponse> responses;
     private String systemId;
 }
