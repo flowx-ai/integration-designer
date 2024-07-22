@@ -1,9 +1,7 @@
 package ai.flowx.integration.service;
 
 import ai.flowx.commons.errors.BadRequestAlertException;
-import ai.flowx.integration.domain.Endpoint;
-import ai.flowx.integration.domain.EndpointParam;
-import ai.flowx.integration.domain.EndpointResponse;
+import ai.flowx.integration.domain.*;
 import ai.flowx.integration.dto.*;
 import ai.flowx.integration.dto.enums.ParamType;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
@@ -26,9 +24,9 @@ public class EndpointService {
     private final EndpointRepository endpointRepository;
     private final EndpointMapper endpointMapper;
 
-    public List<EndpointDTO> getAllEndpointsBySystemId(String systemId) {
-        return endpointRepository.findAllBySystemId(systemId).stream()
-                .map(endpointMapper::toDto)
+    public List<SystemEndpointSummaryDTO> getAllEndpointsSummariesBySystemId(String systemId) {
+        return endpointRepository.findAllSummariesBySystemId(systemId).stream()
+                .map(endpointMapper::toSystemEndpointSummaryDto)
                 .collect(Collectors.toList());
     }
 
@@ -83,6 +81,16 @@ public class EndpointService {
 
     public void deleteResponse(String endpointId, String responseId) {
         endpointRepository.deleteResponse(endpointId, responseId);
+    }
+
+    public EndpointWithSystemSummaryDTO getEndpointWithSystemMandatory(String endpointId) {
+        EndpointWithSystemSummaryDTO endpoint = endpointRepository.getEndpointWithSystemSummary(endpointId)
+                .map(endpointMapper::toDto)
+                .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
+        if(endpoint.getSystem() == null){
+            throw new BadRequestAlertException(SYSTEM_NOT_FOUND, IntegrationSystem.class.getName(), BadRequestErrorType.SYSTEM_NOT_FOUND);
+        }
+        return endpoint;
     }
 
     private void validateParamExists(String endpointId, String paramId, ParamType type) {

@@ -21,12 +21,14 @@ public class EndpointDTO extends BaseAuditableEntityDTO {
     private String id;
     private String flowxUuid;
     private String name;
+    private String description;
     private String url;
     @JsonSerialize(using = HttpMethodSerializer.class)
     private HttpMethod httpMethod;
     private String payload;
     private List<EndpointParamDTO> headers;
     private List<EndpointParamDTO> queryParameters;
+    private List<EndpointParamDTO> pathParameters;
     private List<EndpointResponseDTO> responses;
 }
 

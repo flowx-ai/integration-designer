@@ -21,6 +21,6 @@ public class IntegrationSystemDTO extends BaseAuditableEntityDTO {
     private String description;
     private AuthorizationDTO authorization;
     private List<VariableDTO> variables;
-    private List<EndpointDTO> endpoints;
+    private List<SystemEndpointSummaryDTO> endpoints;
 }
 

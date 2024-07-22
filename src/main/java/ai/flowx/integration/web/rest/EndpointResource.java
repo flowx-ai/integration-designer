@@ -94,4 +94,12 @@ public class EndpointResource {
         endpointService.deleteResponse(endpointId, responseId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/endpoints/{endpointId}")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'read')))")
+    public ResponseEntity<EndpointWithSystemSummaryDTO> getEndpoint(@PathVariable String endpointId) {
+        log.debug("REST request to get Endpoint : {}", endpointId);
+        return ResponseEntity.ok().body(endpointService.getEndpointWithSystemMandatory(endpointId));
+
+    }
 }

@@ -31,6 +31,10 @@ public interface EndpointMapper {
     @Mapping(source = "id", target = "id", qualifiedByName = "generateIdIfNull")
     EndpointResponse toEntity(EndpointResponseDTO dto);
 
+    EndpointWithSystemSummaryDTO toDto(EndpointWithSystemSummary entity);
+
+    SystemEndpointSummaryDTO toSystemEndpointSummaryDto(Endpoint entity);
+
     @Named("generateIdIfNull")
     default String generateIdIfNull(String id) {
         if (StringUtils.hasText(id)) {

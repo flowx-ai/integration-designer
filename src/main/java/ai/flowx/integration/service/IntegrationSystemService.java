@@ -40,7 +40,7 @@ public class IntegrationSystemService {
         return integrationSystemRepository.findById(systemId)
                 .map(integrationSystemMapper::toDto)
                 .map(dto -> {
-                    dto.setEndpoints(endpointService.getAllEndpointsBySystemId(dto.getId()));
+                    dto.setEndpoints(endpointService.getAllEndpointsSummariesBySystemId(dto.getId()));
                     return dto;
                 });
     }
