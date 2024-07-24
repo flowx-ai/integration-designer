@@ -7,6 +7,7 @@ import ai.flowx.integration.domain.Endpoint;
 import ai.flowx.integration.domain.EndpointParam;
 import ai.flowx.integration.domain.EndpointResponse;
 import ai.flowx.integration.domain.EndpointWithSystemSummary;
+import ai.flowx.integration.dto.SystemEndpointSummaryDTO;
 import ai.flowx.integration.dto.enums.ParamType;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import com.mongodb.client.result.UpdateResult;
@@ -130,6 +131,19 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
 
         AggregationResults<EndpointWithSystemSummary> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystemSummary.class);
         return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
+    }
+
+    @Override
+    public SystemEndpointSummaryDTO updateNameMethodAndDescription(SystemEndpointSummaryDTO endpointSummaryDTO) {
+        Query updateQuery = new Query();
+        updateQuery.addCriteria(Criteria.where(ID).is(endpointSummaryDTO.getId()));
+        Update update = new Update();
+        update.set(NAME, endpointSummaryDTO.getName());
+        update.set(DESCRIPTION, endpointSummaryDTO.getDescription());
+        update.set(HTTP_METHOD, endpointSummaryDTO.getHttpMethod());
+
+        executeUpdate(updateQuery, update);
+        return endpointSummaryDTO;
     }
 
     private void executeUpdate(Query updateQuery, Update update) {

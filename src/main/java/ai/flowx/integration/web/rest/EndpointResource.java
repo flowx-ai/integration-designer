@@ -33,6 +33,14 @@ public class EndpointResource {
         return ResponseEntity.ok().body(endpointService.updateEndpoint(systemId, endpointDTO));
     }
 
+    @PatchMapping("/{systemId}/endpoints/general")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
+    public ResponseEntity<SystemEndpointSummaryDTO> updateSummaryEndpoint(@PathVariable String systemId, @Valid @RequestBody SystemEndpointSummaryDTO endpointDTO) {
+        log.debug("REST request to patch endpoint: {} system: {}", endpointDTO, systemId);
+
+        return ResponseEntity.ok().body(endpointService.updateSummary(systemId, endpointDTO));
+    }
+
     @DeleteMapping("/{systemId}/endpoints/{endpointId}")
     @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
     public ResponseEntity<Void> deleteEndpoint(@PathVariable String systemId, @PathVariable String endpointId) {
