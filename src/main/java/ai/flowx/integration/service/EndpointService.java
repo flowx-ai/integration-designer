@@ -43,6 +43,11 @@ public class EndpointService {
         return endpointMapper.toSummaryDto(endpointRepository.updateGeneral(entity));
     }
 
+    public SystemEndpointSummaryDTO updateSummary(String systemId, SystemEndpointSummaryDTO endpointSummaryDTO) {
+        validateEndpointExists(endpointSummaryDTO.getId());
+        return endpointRepository.updateNameMethodAndDescription(endpointSummaryDTO);
+    }
+
     public void deleteEndpoint(String endpointId) {
         endpointRepository.deleteById(endpointId);
     }
@@ -87,7 +92,7 @@ public class EndpointService {
         EndpointWithSystemSummaryDTO endpoint = endpointRepository.getEndpointWithSystemSummary(endpointId)
                 .map(endpointMapper::toDto)
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
-        if(endpoint.getSystem() == null){
+        if (endpoint.getSystem() == null) {
             throw new BadRequestAlertException(SYSTEM_NOT_FOUND, IntegrationSystem.class.getName(), BadRequestErrorType.SYSTEM_NOT_FOUND);
         }
         return endpoint;
