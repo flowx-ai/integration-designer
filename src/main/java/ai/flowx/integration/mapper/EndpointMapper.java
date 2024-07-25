@@ -31,7 +31,7 @@ public interface EndpointMapper {
     @Mapping(source = "id", target = "id", qualifiedByName = "generateIdIfNull")
     EndpointResponse toEntity(EndpointResponseDTO dto);
 
-    EndpointWithSystemSummaryDTO toDto(EndpointWithSystemSummary entity);
+    EndpointWithSystemSummaryDTO toDto(EndpointWithSystem entity);
 
     SystemEndpointSummaryDTO toSystemEndpointSummaryDto(Endpoint entity);
 
