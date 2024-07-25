@@ -3,12 +3,14 @@ package ai.flowx.integration.web.rest;
 import ai.flowx.integration.dto.*;
 import ai.flowx.integration.dto.enums.ParamType;
 import ai.flowx.integration.service.EndpointService;
+import ai.flowx.integration.service.TestRunEndpointService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class EndpointResource {
     private final EndpointService endpointService;
+    private final TestRunEndpointService testRunEndpointService;
+
 
     @PostMapping("/{systemId}/endpoints")
     @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
@@ -109,5 +113,11 @@ public class EndpointResource {
         log.debug("REST request to get Endpoint : {}", endpointId);
         return ResponseEntity.ok().body(endpointService.getEndpointWithSystemMandatory(endpointId));
 
+    }
+
+    @GetMapping("/{systemId}/endpoints/{endpointId}/test")
+    public ResponseEntity<Mono<TestEndpointResponseDTO>> testEndpoint(@PathVariable String systemId, @PathVariable String endpointId){
+        log.debug("REST request to test endpoint: {}, system {}", endpointId, systemId);
+        return ResponseEntity.ok().body(testRunEndpointService.executeRequest(endpointId));
     }
 }

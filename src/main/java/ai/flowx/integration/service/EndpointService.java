@@ -89,13 +89,18 @@ public class EndpointService {
     }
 
     public EndpointWithSystemSummaryDTO getEndpointWithSystemMandatory(String endpointId) {
-        EndpointWithSystemSummaryDTO endpoint = endpointRepository.getEndpointWithSystemSummary(endpointId)
+        EndpointWithSystemSummaryDTO endpoint = endpointRepository.getEndpointWithSystem(endpointId)
                 .map(endpointMapper::toDto)
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
         if (endpoint.getSystem() == null) {
             throw new BadRequestAlertException(SYSTEM_NOT_FOUND, IntegrationSystem.class.getName(), BadRequestErrorType.SYSTEM_NOT_FOUND);
         }
         return endpoint;
+    }
+
+    public EndpointWithSystem getEndpointWithSystem(String endpointId) {
+        return endpointRepository.getEndpointWithSystem(endpointId)
+                .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
     }
 
     private void validateParamExists(String endpointId, String paramId, ParamType type) {

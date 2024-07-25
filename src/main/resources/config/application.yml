@@ -51,6 +51,14 @@ logging.level.org.keycloak: TRACE
 server.port: 8098
 management.server.port: 8197
 
+security:
+  auth:
+    clients:
+      - realm: "paperflow"
+        clientId: "keycloak-admin"
+        clientSecret: "3b243cec-d363-4af1-87fe-cd46fbfb6607"
+    server-url: ${security.oauth2.base-server-url}
+
 
 
 

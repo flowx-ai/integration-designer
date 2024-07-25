@@ -50,3 +50,15 @@ security:
 #      access-token-uri: ${security.oauth2.base-server-url}/realms/${security.oauth2.realm}/protocol/openid-connect/token
       client-id: #left empty on purpose
       client-secret: #left empty on purpose
+  auth:
+    clients:
+      - realm: "realm1"
+        clientId: "client1"
+        clientSecret: "secret1"
+      - realm: "realm2"
+        clientId: "client2"
+        clientSecret: "secret2"
+      - realm: "realm3"
+        clientId: "client3"
+        clientSecret: "secret3"
+    server-url: ${security.oauth2.base-server-url}

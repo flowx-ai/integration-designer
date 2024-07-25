@@ -6,14 +6,17 @@ import ai.flowx.integration.config.audit.AuditUtils;
 import ai.flowx.integration.domain.Endpoint;
 import ai.flowx.integration.domain.EndpointParam;
 import ai.flowx.integration.domain.EndpointResponse;
-import ai.flowx.integration.domain.EndpointWithSystemSummary;
 import ai.flowx.integration.dto.SystemEndpointSummaryDTO;
+import ai.flowx.integration.domain.EndpointWithSystem;
 import ai.flowx.integration.dto.enums.ParamType;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -116,7 +119,7 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
     }
 
     @Override
-    public Optional<EndpointWithSystemSummary> getEndpointWithSystemSummary(String endpointId) {
+    public Optional<EndpointWithSystem> getEndpointWithSystem(String endpointId) {
         AggregationOperation addFields = addFields()
                 .addFieldWithValue("convertedSystemId", ConvertOperators.ToObjectId.toObjectId("$systemId"))
                 .build();
@@ -129,7 +132,7 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
         Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(ID).is(endpointId)), addFields,
                 lookupOperation, Aggregation.unwind("system"));
 
-        AggregationResults<EndpointWithSystemSummary> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystemSummary.class);
+        AggregationResults<EndpointWithSystem> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystem.class);
         return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
     }
 
