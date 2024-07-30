@@ -2,15 +2,12 @@ package ai.flowx.integration.service;
 
 import ai.flowx.integration.config.AuthConfig;
 import ai.flowx.integration.domain.*;
+import ai.flowx.integration.domain.enums.AuthorizationType;
 import ai.flowx.integration.dto.TestEndpointResponseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.keycloak.OAuth2Constants;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.stereotype.Component;

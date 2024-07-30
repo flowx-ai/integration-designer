@@ -23,6 +23,11 @@ public enum BadRequestErrorType implements I18NMessage {
     PARAMETER_NOT_FOUND("error.endpoint.parameter.notFound"),
     ID_NOT_NULL("error.generic.id.notNull"),
     RESPONSE_NOT_FOUND("error.endpoint.response.notFound"),
+    WORKFLOW_NOT_FOUND("error.workflow.notFound"),
+    WORKFLOW_NAME_REQUIRED("error.workflow.nameRequired"),
+    WORKFLOW_NAME_EXISTS("error.workflow.nameExists"),
+    INVALID_ID("error.invalid.id"),
+    WORKFLOW_NOT_UPDATED("error.workflow.notUpdated"),
 
     ;
 
