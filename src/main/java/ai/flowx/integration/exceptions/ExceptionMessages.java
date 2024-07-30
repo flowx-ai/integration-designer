@@ -13,6 +13,10 @@ public class ExceptionMessages {
     public static final String PARAMETER_NOT_FOUND = "Endpoint parameter not found.";
     public static final String ID_NOT_NULL = "Id must be null.";
     public static final String RESPONSE_NOT_FOUND = "Endpoint response not found.";
+    public static final String WORKFLOW_NOT_FOUND = "Workflow not found.";
+    public static final String WORKFLOW_NAME_REQUIRED = "Workflow name is required.";
+    public static final String WORKFLOW_NAME_EXISTS = "A different workflow exists with this name.";
+    public static final String INVALID_ID = "Invalid id";
 
     ExceptionMessages() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

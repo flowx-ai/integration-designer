@@ -116,6 +116,7 @@ public class EndpointResource {
     }
 
     @GetMapping("/{systemId}/endpoints/{endpointId}/test")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'read')))")
     public ResponseEntity<Mono<TestEndpointResponseDTO>> testEndpoint(@PathVariable String systemId, @PathVariable String endpointId){
         log.debug("REST request to test endpoint: {}, system {}", endpointId, systemId);
         return ResponseEntity.ok().body(testRunEndpointService.executeRequest(endpointId));

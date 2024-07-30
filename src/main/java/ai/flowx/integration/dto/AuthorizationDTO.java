@@ -1,6 +1,6 @@
 package ai.flowx.integration.dto;
 
-import ai.flowx.integration.domain.AuthorizationType;
+import ai.flowx.integration.domain.enums.AuthorizationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
