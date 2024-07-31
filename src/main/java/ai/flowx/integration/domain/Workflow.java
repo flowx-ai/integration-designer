@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,5 +20,6 @@ public class Workflow extends BaseAuditableEntity implements Serializable {
     private String flowxUuid;
     private String name;
     private String description;
+    private List<WorkflowIntegrationSystem> systems;
 }
 

@@ -20,7 +20,7 @@ public class WorkflowResource {
 
     @GetMapping()
     @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'read')))")
-    public ResponseEntity<List<WorkflowDTO>> getAllWorkflows() {
+    public ResponseEntity<List<WorkflowWithSystemsDTO>> getAllWorkflows() {
         log.debug("REST request to get all Workflows.");
         return ResponseEntity.ok().body(workflowService.getAllWorkflows());
     }

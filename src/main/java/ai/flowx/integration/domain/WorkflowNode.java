@@ -31,6 +31,7 @@ public class WorkflowNode extends BaseAuditableEntity implements Serializable {
     private String inputBody;
     private String outputBody;
     private String endpointFlowxUuid;
+    private String integrationSystemFlowxUuid;
     private List<NodeVariable> variables;
     private String payload;
     private String workflowId;

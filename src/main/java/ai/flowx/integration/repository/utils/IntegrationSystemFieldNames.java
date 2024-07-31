@@ -1,10 +1,11 @@
-package ai.flowx.integration.repository;
+package ai.flowx.integration.repository.utils;
 
 public class IntegrationSystemFieldNames {
 
     public static final String COLLECTION_NAME = "integration_systems";
 
     public static final String ID = "id";
+    public static final String FLOWX_UUID = "flowxUuid";
     public static final String MODIFIED_DATE = "modifiedDate";
     public static final String MODIFIED_BY = "modifiedBy";
 

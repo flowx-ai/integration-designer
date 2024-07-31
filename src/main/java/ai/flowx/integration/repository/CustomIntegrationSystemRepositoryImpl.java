@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.SYSTEM_NOT_UPDATED;
-import static ai.flowx.integration.repository.IntegrationSystemFieldNames.*;
+import static ai.flowx.integration.repository.utils.IntegrationSystemFieldNames.*;
 
 @RequiredArgsConstructor
 @Repository

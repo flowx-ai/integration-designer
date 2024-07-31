@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Condition {
+    private String id;
     private String expression;
     private ConditionType type;
     private int order;
