@@ -28,6 +28,11 @@ public enum BadRequestErrorType implements I18NMessage {
     WORKFLOW_NAME_EXISTS("error.workflow.nameExists"),
     INVALID_ID("error.invalid.id"),
     WORKFLOW_NOT_UPDATED("error.workflow.notUpdated"),
+    INVALID_NODE_TYPE("error.invalid.nodeType"),
+    WORKFLOW_NODE_NAME_REQUIRED("error.workflow.node.nameRequired"),
+    NODES_NOT_UPDATED("error.workflow.nodes.notUpdated"),
+    NODE_NOT_UPDATED("error.workflow.node.notUpdated"),
+    WORKFLOW_NODE_NOT_FOUND("error.workflow.node.notFound"),
 
     ;
 

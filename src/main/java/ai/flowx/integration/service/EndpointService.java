@@ -103,6 +103,11 @@ public class EndpointService {
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
     }
 
+    public EndpointMetadata getEndpointMetadata(String endpointFlowxUuid){
+        return endpointRepository.getEndpointMetadata(endpointFlowxUuid)
+                .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
+    }
+
     private void validateParamExists(String endpointId, String paramId, ParamType type) {
         Endpoint endpoint = endpointRepository.findById(endpointId)
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));

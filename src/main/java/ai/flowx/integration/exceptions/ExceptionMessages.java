@@ -17,6 +17,12 @@ public class ExceptionMessages {
     public static final String WORKFLOW_NAME_REQUIRED = "Workflow name is required.";
     public static final String WORKFLOW_NAME_EXISTS = "A different workflow exists with this name.";
     public static final String INVALID_ID = "Invalid id";
+    public static final String INVALID_NODE_TYPE = "Node type is invalid.";
+    public static final String WORKFLOW_NODE_NAME_REQUIRED = "Workflow node name is required.";
+    public static final String NODES_NOT_UPDATED = "Workflow nodes not updated.";
+    public static final String NODE_NOT_UPDATED = "Workflow node not updated.";
+    public static final String WORKFLOW_NODE_NOT_FOUND = "Workflow node not found.";
+    public static final String WORKFLOW_NOT_UPDATED = "Workflow not updated.";
 
     ExceptionMessages() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

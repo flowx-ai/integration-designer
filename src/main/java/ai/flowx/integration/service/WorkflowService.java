@@ -4,6 +4,7 @@ import ai.flowx.commons.errors.BadRequestAlertException;
 import ai.flowx.integration.domain.Workflow;
 import ai.flowx.integration.dto.WorkflowDTO;
 import ai.flowx.integration.dto.WorkflowDefinitionDTO;
+import ai.flowx.integration.dto.WorkflowWithSystemsDTO;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.WorkflowMapper;
 import ai.flowx.integration.repository.WorkflowRepository;
@@ -27,8 +28,8 @@ public class WorkflowService {
     private final WorkflowMapper workflowMapper;
     private final WorkflowNodeService workflowNodeService;
 
-    public List<WorkflowDTO> getAllWorkflows() {
-        return workflowRepository.findAll().stream()
+    public List<WorkflowWithSystemsDTO> getAllWorkflows() {
+        return workflowRepository.getAllWorkflows().stream()
                 .map(workflowMapper::toDto).collect(Collectors.toList());
     }
 

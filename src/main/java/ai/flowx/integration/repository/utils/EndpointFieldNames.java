@@ -1,4 +1,4 @@
-package ai.flowx.integration.repository;
+package ai.flowx.integration.repository.utils;
 
 import ai.flowx.integration.dto.enums.ParamType;
 

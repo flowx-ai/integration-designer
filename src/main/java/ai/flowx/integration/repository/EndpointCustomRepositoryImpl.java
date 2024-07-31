@@ -3,13 +3,11 @@ package ai.flowx.integration.repository;
 
 import ai.flowx.commons.errors.InternalServerErrorException;
 import ai.flowx.integration.config.audit.AuditUtils;
-import ai.flowx.integration.domain.Endpoint;
-import ai.flowx.integration.domain.EndpointParam;
-import ai.flowx.integration.domain.EndpointResponse;
+import ai.flowx.integration.domain.*;
 import ai.flowx.integration.dto.SystemEndpointSummaryDTO;
-import ai.flowx.integration.domain.EndpointWithSystem;
 import ai.flowx.integration.dto.enums.ParamType;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
+import ai.flowx.integration.repository.utils.IntegrationSystemFieldNames;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,10 +24,11 @@ import java.util.Date;
 import java.util.Optional;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.ENDPOINT_NOT_UPDATED;
-import static ai.flowx.integration.repository.EndpointFieldNames.*;
-import static ai.flowx.integration.repository.EndpointFieldNames.ID;
-import static ai.flowx.integration.repository.EndpointFieldNames.MODIFIED_BY;
-import static ai.flowx.integration.repository.EndpointFieldNames.MODIFIED_DATE;
+import static ai.flowx.integration.repository.utils.EndpointFieldNames.*;
+import static ai.flowx.integration.repository.utils.EndpointFieldNames.ID;
+import static ai.flowx.integration.repository.utils.EndpointFieldNames.MODIFIED_BY;
+import static ai.flowx.integration.repository.utils.EndpointFieldNames.MODIFIED_DATE;
+import static ai.flowx.integration.repository.utils.IntegrationSystemFieldNames.FLOWX_UUID;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.addFields;
 
 @Repository
@@ -133,6 +132,25 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
                 lookupOperation, Aggregation.unwind("system"));
 
         AggregationResults<EndpointWithSystem> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystem.class);
+        return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
+    }
+
+    @Override
+    public Optional<EndpointMetadata> getEndpointMetadata(String endpointFlowxUuid) {
+        AggregationOperation addFields = addFields()
+                .addFieldWithValue("convertedSystemId", ConvertOperators.ToObjectId.toObjectId("$systemId"))
+                .build();
+        LookupOperation lookupOperation = LookupOperation.newLookup()
+                .from(IntegrationSystemFieldNames.COLLECTION_NAME)
+                .localField("convertedSystemId")
+                .foreignField("_id")
+                .as("system");
+
+        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(FLOWX_UUID).is(endpointFlowxUuid)), addFields,
+                lookupOperation, Aggregation.unwind("system"), Aggregation.project(ID, FLOWX_UUID)
+                        .and("system.flowxUuid").as("integrationSystemFlowxUuid"));
+
+        AggregationResults<EndpointMetadata> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointMetadata.class);
         return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
     }
 
