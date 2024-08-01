@@ -4,10 +4,7 @@ import ai.flowx.commons.errors.BadRequestAlertException;
 import ai.flowx.integration.domain.Authorization;
 import ai.flowx.integration.domain.IntegrationSystem;
 import ai.flowx.integration.domain.Variable;
-import ai.flowx.integration.dto.AuthorizationDTO;
-import ai.flowx.integration.dto.IntegrationSystemDTO;
-import ai.flowx.integration.dto.IntegrationSystemSummaryDTO;
-import ai.flowx.integration.dto.VariableDTO;
+import ai.flowx.integration.dto.*;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.AuthorizationMapper;
 import ai.flowx.integration.mapper.IntegrationSystemMapper;
@@ -34,6 +31,10 @@ public class IntegrationSystemService {
         return integrationSystemRepository.findAllSummaries().stream()
                 .map(integrationSystemMapper::toSummaryDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<IntegrationSystemInfoWithEndpointsDTO> getAllSystemInfos(){
+        return integrationSystemRepository.getSystemInfos();
     }
 
     public Optional<IntegrationSystemDTO> findOneById(String systemId) {

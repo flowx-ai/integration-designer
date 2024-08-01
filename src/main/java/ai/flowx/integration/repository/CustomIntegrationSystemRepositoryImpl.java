@@ -2,22 +2,25 @@ package ai.flowx.integration.repository;
 
 import ai.flowx.commons.errors.InternalServerErrorException;
 import ai.flowx.integration.config.audit.AuditUtils;
-import ai.flowx.integration.domain.Authorization;
-import ai.flowx.integration.domain.IntegrationSystem;
-import ai.flowx.integration.domain.Variable;
+import ai.flowx.integration.domain.*;
+import ai.flowx.integration.dto.IntegrationSystemInfoWithEndpointsDTO;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
+import ai.flowx.integration.repository.utils.EndpointFieldNames;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.SYSTEM_NOT_UPDATED;
 import static ai.flowx.integration.repository.utils.IntegrationSystemFieldNames.*;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.addFields;
 
 @RequiredArgsConstructor
 @Repository
@@ -75,6 +78,30 @@ public class CustomIntegrationSystemRepositoryImpl implements CustomIntegrationS
 
         Update update = new Update().pull(VARIABLES, arrayQuery);
         executeUpdate(updateQuery, update);
+    }
+
+    @Override
+    public List<IntegrationSystemInfoWithEndpointsDTO> getSystemInfos() {
+        AggregationOperation addFields = addFields()
+                .addFieldWithValue("convertedId", ConvertOperators.ToString.toString("$_id"))
+                .build();
+        LookupOperation lookupOperation = LookupOperation.newLookup()
+                .from(EndpointFieldNames.COLLECTION_NAME)
+                .localField("convertedId")
+                .foreignField("systemId")
+                .as("endpoints");
+
+        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria()), addFields, lookupOperation,
+                Aggregation.project(ID, FLOWX_UUID, NAME, CODE)
+                        .and("endpoints._id").as("endpoints._id")
+                        .and("endpoints.flowxUuid").as("endpoints.flowxUuid")
+                        .and("endpoints.httpMethod.name").as("endpoints.httpMethod.name")
+                        .and("endpoints.systemId").as("endpoints.systemId")
+                        .and("endpoints.name").as("endpoints.name"));
+
+
+        AggregationResults<IntegrationSystemInfoWithEndpointsDTO> results = mongoTemplate.aggregate(aggregation, IntegrationSystem.class, IntegrationSystemInfoWithEndpointsDTO.class);
+        return results.getMappedResults();
     }
 
     private void executeUpdate(Query updateQuery, Update update) {

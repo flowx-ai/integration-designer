@@ -3,6 +3,9 @@ package ai.flowx.integration.repository;
 import ai.flowx.integration.domain.Authorization;
 import ai.flowx.integration.domain.IntegrationSystem;
 import ai.flowx.integration.domain.Variable;
+import ai.flowx.integration.dto.IntegrationSystemInfoWithEndpointsDTO;
+
+import java.util.List;
 
 public interface CustomIntegrationSystemRepository {
     Variable saveVariable(String id, Variable variable);
@@ -14,4 +17,6 @@ public interface CustomIntegrationSystemRepository {
     Variable updateVariable(String id, Variable variable);
 
     void deleteVariable(String systemId, String variableId);
+
+    List<IntegrationSystemInfoWithEndpointsDTO> getSystemInfos();
 }

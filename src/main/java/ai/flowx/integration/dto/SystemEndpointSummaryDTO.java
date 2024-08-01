@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 @NoArgsConstructor
 public class SystemEndpointSummaryDTO {
     private String id;
+    private String flowxUuid;
     private String name;
     @NotNull @JsonSerialize(using = HttpMethodSerializer.class)
     private HttpMethod httpMethod;
