@@ -35,6 +35,8 @@ public interface EndpointMapper {
 
     SystemEndpointSummaryDTO toSystemEndpointSummaryDto(Endpoint entity);
 
+    SystemEndpointSummaryDTO toSystemEndpointSummaryDto(EndpointSummary entity);
+
     @Named("generateIdIfNull")
     default String generateIdIfNull(String id) {
         if (StringUtils.hasText(id)) {

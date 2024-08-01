@@ -6,6 +6,7 @@ import ai.flowx.integration.dto.WorkflowDefinitionDTO;
 import ai.flowx.integration.dto.WorkflowWithSystemsDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface WorkflowMapper {
     WorkflowDTO toDto(Workflow entity);
 

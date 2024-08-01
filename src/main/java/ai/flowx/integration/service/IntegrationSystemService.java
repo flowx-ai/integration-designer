@@ -3,13 +3,12 @@ package ai.flowx.integration.service;
 import ai.flowx.commons.errors.BadRequestAlertException;
 import ai.flowx.integration.domain.Authorization;
 import ai.flowx.integration.domain.IntegrationSystem;
+import ai.flowx.integration.domain.IntegrationSystemEndpoint;
 import ai.flowx.integration.domain.Variable;
-import ai.flowx.integration.dto.AuthorizationDTO;
-import ai.flowx.integration.dto.IntegrationSystemDTO;
-import ai.flowx.integration.dto.IntegrationSystemSummaryDTO;
-import ai.flowx.integration.dto.VariableDTO;
+import ai.flowx.integration.dto.*;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.AuthorizationMapper;
+import ai.flowx.integration.mapper.EndpointMapper;
 import ai.flowx.integration.mapper.IntegrationSystemMapper;
 import ai.flowx.integration.mapper.VariableMapper;
 import ai.flowx.integration.repository.IntegrationSystemRepository;
@@ -20,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.*;
+import static java.util.stream.Collectors.groupingBy;
 
 @RequiredArgsConstructor
 @Component
@@ -29,11 +29,26 @@ public class IntegrationSystemService {
     private final AuthorizationMapper authorizationMapper;
     private final VariableMapper variableMapper;
     private final EndpointService endpointService;
+    private final EndpointMapper endpointMapper;
 
     public List<IntegrationSystemSummaryDTO> getAllSystemSummaries() {
         return integrationSystemRepository.findAllSummaries().stream()
                 .map(integrationSystemMapper::toSummaryDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<IntegrationSystemInfoWithEndpointsDTO> getAllSystemInfos() {
+        Map<String, List<IntegrationSystemEndpoint>> systemWithEndpoints = integrationSystemRepository.getSystemInfos()
+                .stream().collect(groupingBy(IntegrationSystemEndpoint::getId));
+
+        return systemWithEndpoints.entrySet().stream().map(entry -> {
+            IntegrationSystemEndpoint firstEndpoint = entry.getValue().get(0);
+            IntegrationSystemInfoWithEndpointsDTO systemInfo = integrationSystemMapper.toDto(firstEndpoint);
+            systemInfo.setEndpoints(entry.getValue().stream().map(IntegrationSystemEndpoint::getEndpoints)
+                    .map(endpointMapper::toSystemEndpointSummaryDto).collect(Collectors.toList()));
+            return systemInfo;
+        }).collect(Collectors.toList());
+
     }
 
     public Optional<IntegrationSystemDTO> findOneById(String systemId) {

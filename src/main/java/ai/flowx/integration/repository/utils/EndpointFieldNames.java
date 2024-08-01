@@ -5,6 +5,7 @@ import ai.flowx.integration.dto.enums.ParamType;
 import java.util.Map;
 
 public class EndpointFieldNames {
+    public static final String COLLECTION_NAME = "endpoints";
 
     public static final String ID = "id";
     public static final String MODIFIED_DATE = "modifiedDate";

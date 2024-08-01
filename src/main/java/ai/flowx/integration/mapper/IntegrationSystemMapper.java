@@ -1,8 +1,10 @@
 package ai.flowx.integration.mapper;
 
 import ai.flowx.integration.domain.IntegrationSystem;
+import ai.flowx.integration.domain.IntegrationSystemEndpoint;
 import ai.flowx.integration.domain.Variable;
 import ai.flowx.integration.dto.IntegrationSystemDTO;
+import ai.flowx.integration.dto.IntegrationSystemInfoWithEndpointsDTO;
 import ai.flowx.integration.dto.IntegrationSystemSummaryDTO;
 import ai.flowx.integration.dto.VariableDTO;
 import org.mapstruct.Mapper;
@@ -28,6 +30,9 @@ public interface IntegrationSystemMapper {
     IntegrationSystem toEntity(IntegrationSystemDTO dto);
 
     IntegrationSystem toEntity(IntegrationSystemSummaryDTO dto);
+
+    @Mapping(target = "endpoints", ignore = true)
+    IntegrationSystemInfoWithEndpointsDTO toDto(IntegrationSystemEndpoint entity);
 
     @Named("toVariableDtoList")
     default List<VariableDTO> toVariableDtoList(List<Variable> variableList) {
