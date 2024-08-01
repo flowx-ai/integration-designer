@@ -1,6 +1,8 @@
 package ai.flowx.integration.mapper;
 
+import ai.flowx.integration.domain.Sequence;
 import ai.flowx.integration.domain.WorkflowNode;
+import ai.flowx.integration.dto.SequenceDTO;
 import ai.flowx.integration.dto.UpdateWorkflowNodeReqDTO;
 import ai.flowx.integration.dto.WorkflowNodeDTO;
 import org.mapstruct.Mapper;
@@ -14,4 +16,5 @@ public interface WorkflowNodeMapper {
 
     WorkflowNode toEntity(UpdateWorkflowNodeReqDTO dto);
 
+    Sequence toSequenceEntity(SequenceDTO sequenceDTO);
 }

@@ -3,6 +3,7 @@ package ai.flowx.integration.repository;
 import ai.flowx.commons.definitions.audit.domain.AuditorDetails;
 import ai.flowx.commons.errors.InternalServerErrorException;
 import ai.flowx.integration.config.audit.AuditUtils;
+import ai.flowx.integration.domain.Sequence;
 import ai.flowx.integration.domain.WorkflowNode;
 import ai.flowx.integration.dto.WorkflowNodePositionDTO;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
@@ -22,6 +23,7 @@ import java.util.Set;
 import static ai.flowx.integration.exceptions.ExceptionMessages.NODES_NOT_UPDATED;
 import static ai.flowx.integration.exceptions.ExceptionMessages.NODE_NOT_UPDATED;
 import static ai.flowx.integration.repository.utils.WorkflowNodeFieldNames.*;
+import static ai.flowx.integration.repository.utils.WorkflowNodeFieldNames.LAYOUT_OPTIONS;
 
 @Repository
 @RequiredArgsConstructor
@@ -59,7 +61,16 @@ public class CustomWorkflowNodeRepositoryImpl implements CustomWorkflowNodeRepos
         update.set(INTEGRATION_SYSTEM_FLOWX_UUID, node.getIntegrationSystemFlowxUuid());
         update.set(VARIABLES, node.getVariables());
         update.set(PAYLOAD, node.getPayload());
-       executeUpdate(query, update);
+        executeUpdate(query, update);
+    }
+
+    @Override
+    public void addSequence(String workflowNodeId, Sequence sequence) {
+        Query updateQuery = new Query();
+        updateQuery.addCriteria(Criteria.where(ID).is(workflowNodeId));
+        Update update = new Update();
+        update.push(SEQUENCES, sequence);
+        executeUpdate(updateQuery, update);
     }
 
     private void executeBulkUpdate(BulkOperations bulkOps) {

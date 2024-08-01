@@ -2,18 +2,18 @@ package ai.flowx.integration.service;
 
 import ai.flowx.commons.errors.BadRequestAlertException;
 import ai.flowx.integration.domain.EndpointMetadata;
+import ai.flowx.integration.domain.Sequence;
 import ai.flowx.integration.domain.WorkflowNode;
+import ai.flowx.integration.domain.enums.StatusType;
 import ai.flowx.integration.domain.enums.WorkflowNodeType;
-import ai.flowx.integration.dto.CreateWorkflowNodeReqDTO;
-import ai.flowx.integration.dto.UpdateWorkflowNodeReqDTO;
-import ai.flowx.integration.dto.WorkflowNodeDTO;
-import ai.flowx.integration.dto.WorkflowNodePositionDTO;
+import ai.flowx.integration.dto.*;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.WorkflowNodeMapper;
 import ai.flowx.integration.repository.WorkflowNodeRepository;
 import ai.flowx.integration.repository.WorkflowRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
@@ -21,12 +21,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static ai.flowx.integration.domain.enums.WorkflowNodeType.SCRIPT;
+import static ai.flowx.integration.domain.enums.WorkflowNodeType.START;
 import static ai.flowx.integration.exceptions.ExceptionMessages.*;
 
 @Transactional
 @Component
 public class WorkflowNodeService {
+    public static final Set<WorkflowNodeType> TYPES_WITH_ONE_SEQUENCE_ALLOWED = Set.of(START, SCRIPT);
+    public static final Set<WorkflowNodeType> START_AND_END_NODE_TYPES = Set.of(START, WorkflowNodeType.END);
+
     private final WorkflowNodeRepository workflowNodeRepository;
     private final WorkflowRepository workflowRepository;
     private final WorkflowNodeMapper workflowNodeMapper;
@@ -43,11 +51,11 @@ public class WorkflowNodeService {
         this.updateWorkflowNodeValidator = updateWorkflowNodeValidator;
         this.endpointService = endpointService;
         updateNodeFunctions = Map.of(
-                WorkflowNodeType.START, this::generalUpdateNode,
+                START, this::generalUpdateNode,
                 WorkflowNodeType.END, this::generalUpdateNode,
                 WorkflowNodeType.REST, this::updateRestNode,
                 WorkflowNodeType.FORK, this::generalUpdateNode,
-                WorkflowNodeType.SCRIPT, this::generalUpdateNode
+                SCRIPT, this::generalUpdateNode
         );
     }
 
@@ -55,7 +63,7 @@ public class WorkflowNodeService {
         WorkflowNode node = new WorkflowNode();
         node.setName("start");
         node.setFlowxUuid(UUID.randomUUID().toString());
-        node.setType(WorkflowNodeType.START);
+        node.setType(START);
         node.setWorkflowId(workflowId);
         node.setLayoutOptions(Map.of("x", 0, "y", 0));
         workflowNodeRepository.save(node);
@@ -75,7 +83,7 @@ public class WorkflowNodeService {
     }
 
     private void validateNodeTypeForCreate(CreateWorkflowNodeReqDTO dto) {
-        if (WorkflowNodeType.START.equals(dto.getType())) {
+        if (START.equals(dto.getType())) {
             throw new BadRequestAlertException(INVALID_NODE_TYPE, WorkflowNode.class.getName(),
                     BadRequestErrorType.INVALID_NODE_TYPE);
         }
@@ -134,4 +142,66 @@ public class WorkflowNodeService {
                         BadRequestErrorType.WORKFLOW_NODE_NOT_FOUND));
     }
 
+
+    public SequenceDTO createSequenceOnWorkflowNode(String workflowNodeId, SequenceDTO sequenceDTO) {
+        sequenceDTO.setId(UUID.randomUUID().toString());
+
+        List<WorkflowNode> workflowNodes = workflowNodeRepository.findByIdOrFlowxUuid(workflowNodeId, sequenceDTO.getTargetNodeFlowxUuid());
+        if(workflowNodes.size() != 2) {
+            throw new BadRequestAlertException(WORKFLOW_NODE_NOT_FOUND, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_NOT_FOUND);
+        }
+
+        WorkflowNode sourceWorkflowNode = workflowNodes.stream().filter(s -> s.getId().equals(workflowNodeId)).findFirst().get();
+        WorkflowNode targetWorkflowNode = workflowNodes.stream().filter(s -> s.getFlowxUuid().equals(sequenceDTO.getTargetNodeFlowxUuid())).findFirst().get();
+
+        validateSequenceForSourceWorkflowNode(sequenceDTO, sourceWorkflowNode);
+        validateSourceAndTargetSequenceCompatibility(sourceWorkflowNode, targetWorkflowNode);
+
+        workflowNodeRepository.addSequence(workflowNodeId, workflowNodeMapper.toSequenceEntity(sequenceDTO));
+
+        return sequenceDTO;
+    }
+
+    private static void validateSequenceForSourceWorkflowNode(SequenceDTO sequenceDTO, WorkflowNode sourceWorkflowNode) {
+        boolean contentsOfDTOsNotConsistentWithType = sequenceDTO.getStatusOutput() != null && !sourceWorkflowNode.getType().equals(WorkflowNodeType.REST) ||
+                WorkflowNodeType.REST.equals(sourceWorkflowNode.getType()) && sequenceDTO.getStatusOutput() == null ||
+                sequenceDTO.getConditionId() != null && !WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType()) ||
+                sequenceDTO.getConditionId() == null && WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType());
+
+        if(contentsOfDTOsNotConsistentWithType
+        ) {
+            throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
+        }
+
+        if(TYPES_WITH_ONE_SEQUENCE_ALLOWED.contains(sourceWorkflowNode.getType()) && !CollectionUtils.isEmpty(sourceWorkflowNode.getOutgoingSequences())) {
+            throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_ONE_SEQUENCE_ALLOWED, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
+        } else if (WorkflowNodeType.END.equals(sourceWorkflowNode.getType())) {
+            throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_END_NODE_NOT_ALLOWED, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
+        } else if (WorkflowNodeType.REST.equals(sourceWorkflowNode.getType())) {
+            Map<StatusType, Long> collect = Optional.ofNullable(sourceWorkflowNode.getOutgoingSequences()).orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(Sequence::getStatusOutput)
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            if (collect.getOrDefault(sequenceDTO.getStatusOutput(), 0L) > 0) {
+                throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_REST_NODE_HAS_STATUS_OUTPUT, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
+            }
+        } else if(WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType())) {
+            Optional.ofNullable(sourceWorkflowNode.getConditions()).orElse(Collections.emptyList())
+                    .stream()
+                    .filter(s -> s.getId().equals(sequenceDTO.getConditionId())).findFirst()
+                    .orElseThrow(() -> new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_FORK_CONDITION_ID_NOT_FOUND, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID));
+        }
+    }
+
+    private void validateSourceAndTargetSequenceCompatibility(WorkflowNode sourceWorkflowNode, WorkflowNode targetWorkflowNode) {
+        if(START_AND_END_NODE_TYPES.contains(sourceWorkflowNode.getType()) &&
+                START_AND_END_NODE_TYPES.contains(targetWorkflowNode.getType())) {
+            throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_SRC_TARGET_BOTH_START_END, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
+        }
+
+        if(targetWorkflowNode.getType().equals(WorkflowNodeType.END) && sourceWorkflowNode.getType().equals(START)) {
+            throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_START_TO_END, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
+        }
+    }
 }

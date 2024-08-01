@@ -42,4 +42,13 @@ public class WorkflowNodeResource {
         return ResponseEntity.ok().body(workflowNodeService.updateLayoutOptions(workflowNodePositions));
     }
 
+    @PostMapping("/{workflowNodeId}/sequences")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
+    public ResponseEntity<SequenceDTO> createSequenceOnWorkflowNode(
+            @PathVariable("workflowNodeId") String workflowNodeId,
+            @Valid @RequestBody SequenceDTO sequenceDTO) {
+        log.debug("REST request to create sequence on workflow node {}: {}", workflowNodeId, sequenceDTO);
+
+        return ResponseEntity.ok().body(workflowNodeService.createSequenceOnWorkflowNode(workflowNodeId, sequenceDTO));
+    }
 }
