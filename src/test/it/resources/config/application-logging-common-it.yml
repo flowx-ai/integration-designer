@@ -1,0 +1,19 @@
+logging:
+  level:
+    ROOT: INFO
+
+    web: ${LOGGING_LEVEL_APP:INFO}
+
+    jdk.event.security: WARN
+
+    org:
+      apache.kafka.clients.producer.ProducerConfig: OFF
+      jboss: WARN
+      reflections: WARN
+      springframework:
+        web: ${LOGGING_LEVEL_APP:INFO}
+        transaction.interceptor: ${LOGGING_LEVEL_APP:INFO}
+        security.oauth2:
+          client.resource.OAuth2AccessDeniedException: ${LOGGING_LEVEL_OAUTH2_EXC:OFF}
+          common.exceptions.InvalidTokenException: ${LOGGING_LEVEL_OAUTH2_EXC:OFF}
+        boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices: ${LOGGING_LEVEL_OAUTH2_EXC:OFF}

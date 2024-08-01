@@ -1,0 +1,24 @@
+spring:
+  cache:
+    type: redis
+    redis:
+      key-prefix: "flowx:core:cache:"
+      persistence-key-prefix: "flowx:core:persistence:"
+      time-to-live: ${REDIS_TTL:5000000} # milliseconds
+  redis:
+      host: localhost
+      port: 6379
+      password: defaultpassword
+      ttl: ${REDIS_TTL:5000000} # milliseconds
+      platform-health:
+        ttl: 60000 #miliseconds
+      platform-components-version:
+        ttl: 3600000 #miliseconds
+  data:
+    redis:
+      host: ${spring.redis.host}
+      port: ${spring.redis.port}
+      password: ${spring.redis.password}
+
+
+    # change to default env var names

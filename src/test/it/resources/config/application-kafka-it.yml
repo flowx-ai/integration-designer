@@ -1,0 +1,56 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    security.protocol: "PLAINTEXT"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        message:
+          max:
+            bytes: ${KAFKA_MESSAGE_MAX_BYTES:52428800} #50MB
+        max:
+          request:
+            size: ${KAFKA_MESSAGE_MAX_BYTES:52428800} #50MB
+
+kafka:
+  consumer:
+    group-id:
+      generic-processing: genericProcessingGroup
+    threads:
+      generic-processing: 6
+
+  auth-exception-retry-interval: 10
+
+  topic:
+    naming:
+      package: "ai.flowx."
+      environment: "dev."
+      version: ".v1"
+      prefix: ${kafka.topic.naming.package}${kafka.topic.naming.environment}
+      suffix: ${kafka.topic.naming.version}
+
+    audit:
+      out: ${kafka.topic.naming.prefix}core.trigger.save.audit${kafka.topic.naming.suffix}
+    process:
+      start-for-event:
+        in: ${kafka.topic.naming.prefix}core.trigger.start-for-event.process${kafka.topic.naming.suffix}
+      scheduled-timer-events:
+        out:
+          set: ${kafka.topic.naming.prefix}core.trigger.set.timer-event-schedule${kafka.topic.naming.suffix}
+          stop: ${kafka.topic.naming.prefix}core.trigger.stop.timer-event-schedule${kafka.topic.naming.suffix}
+    platform:
+      components-versions:
+        in: ${kafka.topic.naming.prefix}core.trigger.platform.versions.caching${kafka.topic.naming.suffix}
+
+
+---
+spring.config.activate.on-profile: kafka-auth
+
+spring:
+  kafka:
+    security.protocol: "SASL_PLAINTEXT"
+    properties:
+      sasl:
+        mechanism: "OAUTHBEARER"
+        jaas.config: "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.client.id=\"${KAFKA_OAUTH_CLIENT_ID:kafka}\" oauth.client.secret=\"${KAFKA_OAUTH_CLIENT_SECRET:kafka-secret}\"  oauth.token.endpoint.uri=\"${KAFKA_OAUTH_TOKEN_ENDPOINT_URI:kafka.auth.localhost}\" ;"
+        login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
