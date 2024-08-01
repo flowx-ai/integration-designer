@@ -10,5 +10,4 @@ import java.util.Map;
 @Setter
 public class EndpointWithSystem extends Endpoint{
     private IntegrationSystem system;
-    private Map<String, String> variablesMap = new HashMap<>();
 }

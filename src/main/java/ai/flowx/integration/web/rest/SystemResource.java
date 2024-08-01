@@ -1,9 +1,6 @@
 package ai.flowx.integration.web.rest;
 
-import ai.flowx.integration.dto.AuthorizationDTO;
-import ai.flowx.integration.dto.IntegrationSystemDTO;
-import ai.flowx.integration.dto.IntegrationSystemSummaryDTO;
-import ai.flowx.integration.dto.VariableDTO;
+import ai.flowx.integration.dto.*;
 import ai.flowx.integration.service.IntegrationSystemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +23,13 @@ public class SystemResource {
     public ResponseEntity<List<IntegrationSystemSummaryDTO>> getAllSystems() {
         log.debug("REST request to get all IntegrationSystems.");
         return ResponseEntity.ok().body(integrationSystemService.getAllSystemSummaries());
+    }
+
+    @GetMapping("/info")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'read')))")
+    public ResponseEntity<List<IntegrationSystemInfoWithEndpointsDTO>> getAllSystemsInfos() {
+        log.debug("REST request to get all IntegrationSystems infos.");
+        return ResponseEntity.ok().body(integrationSystemService.getAllSystemInfos());
     }
 
     @GetMapping("/{systemId}")

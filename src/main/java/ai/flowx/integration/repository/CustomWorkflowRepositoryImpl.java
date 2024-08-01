@@ -40,7 +40,7 @@ public class CustomWorkflowRepositoryImpl implements CustomWorkflowRepository {
                 .foreignField("workflowId")
                 .as("nodes");
 
-        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(ID).is(workflowId)), lookupOperation);
+        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(ID).is(workflowId)), addFields, lookupOperation);
 
         AggregationResults<WorkflowDefinition> results = mongoTemplate.aggregate(aggregation, Workflow.class, WorkflowDefinition.class);
         return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
