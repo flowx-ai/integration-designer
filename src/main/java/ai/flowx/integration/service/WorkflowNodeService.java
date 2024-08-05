@@ -204,4 +204,18 @@ public class WorkflowNodeService {
             throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_START_TO_END, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
         }
     }
+
+    public List<String> deleteWorkflowNodeAndReturnDeletedSequences(String workflowNodeId) {
+        WorkflowNode existingNode = findOneMandatory(workflowNodeId);
+
+        List<String> deletedSequences = existingNode.getOutgoingSequences().stream().map(Sequence::getId).collect(Collectors.toList());
+        workflowNodeRepository.delete(existingNode);
+
+        List<String> sequencesToNodeToDelete = workflowNodeRepository.findSequenceIdsByWorkflowNodeFlowxUuid(existingNode.getWorkflowId(), existingNode.getFlowxUuid());
+        deletedSequences.addAll(sequencesToNodeToDelete);
+
+        workflowNodeRepository.deleteSequences(existingNode.getWorkflowId(), sequencesToNodeToDelete);
+
+        return deletedSequences;
+    }
 }

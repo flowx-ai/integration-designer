@@ -10,20 +10,23 @@ import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.NODES_NOT_UPDATED;
 import static ai.flowx.integration.exceptions.ExceptionMessages.NODE_NOT_UPDATED;
 import static ai.flowx.integration.repository.utils.WorkflowNodeFieldNames.*;
-import static ai.flowx.integration.repository.utils.WorkflowNodeFieldNames.LAYOUT_OPTIONS;
 
 @Repository
 @RequiredArgsConstructor
@@ -71,6 +74,31 @@ public class CustomWorkflowNodeRepositoryImpl implements CustomWorkflowNodeRepos
         Update update = new Update();
         update.push(SEQUENCES, sequence);
         executeUpdate(updateQuery, update);
+    }
+
+    @Override
+    public List<String> findSequenceIdsByWorkflowNodeFlowxUuid(String workflowId, String workflowNodeFlowxUuid) {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where(WORKFLOW_ID).is(workflowId).and(SEQUENCES_TARGET).is(workflowNodeFlowxUuid)),
+                Aggregation.unwind("$" + SEQUENCES),
+                Aggregation.match(Criteria.where(SEQUENCES_TARGET).is(workflowNodeFlowxUuid)),
+                Aggregation.project(SEQUENCES_ID)
+        );
+
+        List<Document> mappedResults = mongoTemplate.aggregate(aggregation, WorkflowNode.class, Document.class).getMappedResults();
+        return mappedResults.stream().map(s -> s.getString("_" + ID)).collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteSequences(String workflowId, List<String> deletedSequences) {
+        Query updateQuery = new Query();
+        updateQuery.addCriteria(Criteria.where(WORKFLOW_ID).is(workflowId));
+
+        Query arrayQuery = new Query();
+        arrayQuery.addCriteria(Criteria.where("_" + ID).in(deletedSequences));
+
+        Update update = new Update().pull(SEQUENCES, arrayQuery);
+        mongoTemplate.updateMulti(updateQuery, update, WorkflowNode.class);
     }
 
     private void executeBulkUpdate(BulkOperations bulkOps) {

@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class WorkflowNode extends BaseAuditableEntity implements Serializable {
     @Id
     private String id;
+
+    @Indexed(name = "workflow_nodes_flowxUuid")
     private String flowxUuid;
     private WorkflowNodeType type;
     private String name;
@@ -34,6 +37,8 @@ public class WorkflowNode extends BaseAuditableEntity implements Serializable {
     private String integrationSystemFlowxUuid;
     private List<NodeVariable> variables;
     private String payload;
+
+    @Indexed(name = "workflow_nodes_workflowId")
     private String workflowId;
 }
 

@@ -19,9 +19,11 @@ public class WorkflowNodeFieldNames {
     public static final String INTEGRATION_SYSTEM_FLOWX_UUID = "integrationSystemFlowxUuid";
     public static final String VARIABLES = "variables";
     public static final String PAYLOAD = "payload";
+    public static final String WORKFLOW_ID = "workflowId";
 
     public static final String SEQUENCES = "outgoingSequences";
-    public static final String SEQUENCES_ID = "outgoingSequences.id";
+    public static final String SEQUENCES_TARGET = "outgoingSequences.targetNodeFlowxUuid";
+    public static final String SEQUENCES_ID = "outgoingSequences._id";
     public static final String SEQUENCES_$ = "outgoingSequences.$";
 
     WorkflowNodeFieldNames() {

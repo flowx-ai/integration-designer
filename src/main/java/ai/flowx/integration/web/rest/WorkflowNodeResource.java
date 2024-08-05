@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -50,5 +51,13 @@ public class WorkflowNodeResource {
         log.debug("REST request to create sequence on workflow node {}: {}", workflowNodeId, sequenceDTO);
 
         return ResponseEntity.ok().body(workflowNodeService.createSequenceOnWorkflowNode(workflowNodeId, sequenceDTO));
+    }
+
+    @DeleteMapping("/{workflowNodeId}")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
+    public ResponseEntity<List<String>> deleteWorkflowNode(@PathVariable("workflowNodeId") String workflowNodeId) {
+        log.debug("REST request to delete workflow node {}", workflowNodeId);
+
+        return ResponseEntity.ok().body(workflowNodeService.deleteWorkflowNodeAndReturnDeletedSequences(workflowNodeId));
     }
 }
