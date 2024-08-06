@@ -4,7 +4,9 @@ import ai.flowx.integration.domain.*;
 import ai.flowx.integration.dto.SystemEndpointSummaryDTO;
 import ai.flowx.integration.dto.enums.ParamType;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface EndpointCustomRepository {
@@ -25,6 +27,8 @@ public interface EndpointCustomRepository {
     SystemEndpointSummaryDTO updateNameMethodAndDescription(SystemEndpointSummaryDTO endpointSummaryDTO);
 
     Optional<EndpointWithSystem> getEndpointWithSystem(String endpointId);
+
+    List<EndpointWithSystem> getEndpointsWithSystemCodeByFlowxUuids(Set<String> flowxUuids);
 
     Optional<EndpointMetadata> getEndpointMetadata(String endpointFlowxUuid);
 }
