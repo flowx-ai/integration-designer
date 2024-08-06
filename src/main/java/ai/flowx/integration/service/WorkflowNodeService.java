@@ -11,6 +11,7 @@ import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.WorkflowNodeMapper;
 import ai.flowx.integration.repository.WorkflowNodeRepository;
 import ai.flowx.integration.repository.WorkflowRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -40,16 +41,18 @@ public class WorkflowNodeService {
     private final WorkflowNodeMapper workflowNodeMapper;
     private final UpdateWorkflowNodeValidator updateWorkflowNodeValidator;
     private final EndpointService endpointService;
-    private Map<WorkflowNodeType, BiConsumer<WorkflowNode, UpdateWorkflowNodeReqDTO>> updateNodeFunctions;
+    private final Map<WorkflowNodeType, WorkflowNodeRunner> workflowNodeRunnerMap;
+    private final Map<WorkflowNodeType, BiConsumer<WorkflowNode, UpdateWorkflowNodeReqDTO>> updateNodeFunctions;
 
     public WorkflowNodeService(WorkflowNodeRepository workflowNodeRepository, WorkflowRepository workflowRepository,
-                               WorkflowNodeMapper workflowNodeMapper, UpdateWorkflowNodeValidator updateWorkflowNodeValidator,
-                               EndpointService endpointService) {
+                               WorkflowNodeMapper workflowNodeMapper, UpdateWorkflowNodeValidator updateWorkflowNodeValidator, EndpointService endpointService,
+                               List<WorkflowNodeRunner> workflowNodeRunners) {
         this.workflowNodeRepository = workflowNodeRepository;
         this.workflowRepository = workflowRepository;
         this.workflowNodeMapper = workflowNodeMapper;
         this.updateWorkflowNodeValidator = updateWorkflowNodeValidator;
         this.endpointService = endpointService;
+        this.workflowNodeRunnerMap = workflowNodeRunners.stream().collect(Collectors.toMap(s -> s.getSupportedType(), s -> s));
         updateNodeFunctions = Map.of(
                 START, this::generalUpdateNode,
                 WorkflowNodeType.END, this::generalUpdateNode,
@@ -217,5 +220,13 @@ public class WorkflowNodeService {
         workflowNodeRepository.deleteSequences(existingNode.getWorkflowId(), sequencesToNodeToDelete);
 
         return deletedSequences;
+    }
+
+    public NodeRunResponseDTO runWorkflowNodeIndividually(String workflowNodeId, JsonNode input) {
+        WorkflowNode workflowNode = findOneMandatory(workflowNodeId);
+
+        return Optional.ofNullable(workflowNodeRunnerMap.get(workflowNode.getType()))
+                .map(runner -> runner.runNode(workflowNode, input))
+                .orElseThrow(() -> new BadRequestAlertException(WORKFLOW_NODE_RUN_TYPE_INVALID, WorkflowNode.class.getName(), BadRequestErrorType.WORKFLOW_NODE_RUN_NOT_VALID));
     }
 }

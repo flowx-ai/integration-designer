@@ -1,7 +1,10 @@
 package ai.flowx.integration.service;
 
 import ai.flowx.integration.config.AuthConfig;
-import ai.flowx.integration.domain.*;
+import ai.flowx.integration.domain.Authorization;
+import ai.flowx.integration.domain.EndpointParam;
+import ai.flowx.integration.domain.EndpointWithSystem;
+import ai.flowx.integration.domain.IntegrationSystem;
 import ai.flowx.integration.domain.enums.AuthorizationType;
 import ai.flowx.integration.dto.TestEndpointResponseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,7 +31,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Component
 public class TestRunEndpointService {
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{\\{(.+?)\\}\\}");
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{(.+?)\\}");
     private static final String EMPTY_STRING = "";
     private final WebClient webClient;
     private final AuthConfig authConfig;
@@ -194,5 +197,4 @@ public class TestRunEndpointService {
             authFunctions.get(authorizationOpt.get().getType()).accept(requestSpec, authorizationOpt.get(), authConfig);
         }
     }
-
 }

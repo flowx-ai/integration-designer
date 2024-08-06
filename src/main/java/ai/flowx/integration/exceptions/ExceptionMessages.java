@@ -30,6 +30,8 @@ public class ExceptionMessages {
     public static final String WORKFLOW_NODE_SEQUENCE_NOT_VALID_FORK_CONDITION_ID_NOT_FOUND = "Fork condition id does not exist!";
     public static final String WORKFLOW_NODE_SEQUENCE_NOT_VALID_SRC_TARGET_BOTH_START_END = "One of the nodes must be different type from START/END!";
     public static final String WORKFLOW_NODE_SEQUENCE_NOT_VALID_START_TO_END = "START node cannot have sequence to END node!";
+    public static final String WORKFLOW_NODE_RUN_TYPE_INVALID = "This node cannot be run individually!";
+
 
     ExceptionMessages() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

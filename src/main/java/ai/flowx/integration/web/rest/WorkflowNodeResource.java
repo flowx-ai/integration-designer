@@ -2,6 +2,7 @@ package ai.flowx.integration.web.rest;
 
 import ai.flowx.integration.dto.*;
 import ai.flowx.integration.service.WorkflowNodeService;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,14 @@ public class WorkflowNodeResource {
         log.debug("REST request to create sequence on workflow node {}: {}", workflowNodeId, sequenceDTO);
 
         return ResponseEntity.ok().body(workflowNodeService.createSequenceOnWorkflowNode(workflowNodeId, sequenceDTO));
+    }
+
+    @PostMapping("/{workflowNodeId}/run")
+    @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
+    public ResponseEntity<NodeRunResponseDTO> runWorkflowNodeIndividually(@PathVariable String workflowNodeId, @Valid @RequestBody JsonNode jsonNode) {
+        log.debug("REST request to run workflow node {} individually", workflowNodeId);
+
+        return ResponseEntity.ok().body(workflowNodeService.runWorkflowNodeIndividually(workflowNodeId, jsonNode));
     }
 
     @DeleteMapping("/{workflowNodeId}")
