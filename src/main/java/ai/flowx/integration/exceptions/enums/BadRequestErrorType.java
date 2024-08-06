@@ -34,6 +34,7 @@ public enum BadRequestErrorType implements I18NMessage {
     NODE_NOT_UPDATED("error.workflow.node.notUpdated"),
     WORKFLOW_NODE_NOT_FOUND("error.workflow.node.notFound"),
     WORKFLOW_NODE_SEQUENCE_NOT_VALID("error.workflow.sequenceNotValid"),
+    WORKFLOW_NODE_RUN_NOT_VALID("error.workflow.nodeRunNotValid"),
     WORKFLOW_NODE_SEQUENCE_SRC_TARGET_NOT_VALID("error.workflow.sequenceSrcTargetNotValid"),
     ;
 
