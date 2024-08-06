@@ -10,5 +10,6 @@ import java.util.List;
 @Setter
 public class WorkflowDefinitionDTO extends WorkflowDTO {
     private List<WorkflowNodeDTO> nodes;
+    private List<EndpointWithSystemSummaryDTO> endpoints;
 }
 

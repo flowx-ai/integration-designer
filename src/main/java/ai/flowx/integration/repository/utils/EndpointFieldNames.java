@@ -8,6 +8,7 @@ public class EndpointFieldNames {
     public static final String COLLECTION_NAME = "endpoints";
 
     public static final String ID = "id";
+    public static final String FLOWX_UUID = "flowxUuid";
     public static final String MODIFIED_DATE = "modifiedDate";
     public static final String MODIFIED_BY = "modifiedBy";
 
@@ -22,7 +23,11 @@ public class EndpointFieldNames {
     public static final String RESPONSES_ID = "responses.id";
     public static final String RESPONSES_$ = "responses.$";
 
-    public static final Map<ParamType, String> PARAM_NAMES_BY_PARAM_TYPE = Map.of(ParamType.HEADER, "headers", ParamType.QUERY, "queryParameters", ParamType.PATH, "pathParameters");
+    public static final String HEADERS = "headers";
+    public static final String QUERY_PARAMETERS = "queryParameters";
+    public static final String PATH_PARAMETERS = "pathParameters";
+
+    public static final Map<ParamType, String> PARAM_NAMES_BY_PARAM_TYPE = Map.of(ParamType.HEADER, HEADERS, ParamType.QUERY, QUERY_PARAMETERS, ParamType.PATH, PATH_PARAMETERS);
     public static final Map<ParamType, String> PARAM_NAMES_$_BY_PARAM_TYPE = Map.of(ParamType.HEADER, "headers.$", ParamType.QUERY, "queryParameters.$", ParamType.PATH, "pathParameters.$");
     public static final Map<ParamType, String> PARAM_IDS_BY_PARAM_TYPE = Map.of(ParamType.HEADER, "headers.id", ParamType.QUERY, "queryParameters.id", ParamType.PATH, "pathParameters.id");
 

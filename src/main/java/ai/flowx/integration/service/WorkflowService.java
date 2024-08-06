@@ -2,20 +2,20 @@ package ai.flowx.integration.service;
 
 import ai.flowx.commons.errors.BadRequestAlertException;
 import ai.flowx.integration.domain.Workflow;
+import ai.flowx.integration.domain.enums.WorkflowNodeType;
 import ai.flowx.integration.dto.WorkflowDTO;
 import ai.flowx.integration.dto.WorkflowDefinitionDTO;
+import ai.flowx.integration.dto.WorkflowNodeDTO;
 import ai.flowx.integration.dto.WorkflowWithSystemsDTO;
 import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.WorkflowMapper;
 import ai.flowx.integration.repository.WorkflowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.*;
@@ -27,6 +27,7 @@ public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
     private final WorkflowNodeService workflowNodeService;
+    private final EndpointService endpointService;
 
     public List<WorkflowWithSystemsDTO> getAllWorkflows() {
         return workflowRepository.getAllWorkflows().stream()
@@ -34,7 +35,17 @@ public class WorkflowService {
     }
 
     public Optional<WorkflowDefinitionDTO> findOneById(String id) {
-        return workflowRepository.getWorkflowWithNodes(id).map(workflowMapper::toDefinitionDto);
+        return workflowRepository.getWorkflowWithNodes(id).map(workflowMapper::toDefinitionDto)
+                .map(workflowDefinitionDTO -> {
+                    if (!CollectionUtils.isEmpty(workflowDefinitionDTO.getNodes())) {
+                        Set<String> endpointsFlowxUuids = workflowDefinitionDTO.getNodes().stream()
+                                .filter(node -> WorkflowNodeType.REST.equals(node.getType()) && node.getEndpointFlowxUuid() != null)
+                                .map(WorkflowNodeDTO::getEndpointFlowxUuid).collect(Collectors.toSet());
+                        workflowDefinitionDTO.setEndpoints(endpointService.getEndpointsByFlowxUuids(endpointsFlowxUuids));
+                    }
+
+                    return workflowDefinitionDTO;
+                });
     }
 
     public WorkflowDTO createWorkflow(WorkflowDTO workflowDTO) {
@@ -68,7 +79,7 @@ public class WorkflowService {
         Workflow existingEntity = workflowRepository.findById(workflowDTO.getId())
                 .orElseThrow(() -> new BadRequestAlertException(WORKFLOW_NOT_FOUND, Workflow.class.getName(),
                         BadRequestErrorType.WORKFLOW_NOT_FOUND));
-        if(!Objects.equals(existingEntity.getName(), workflowDTO.getName())) {
+        if (!Objects.equals(existingEntity.getName(), workflowDTO.getName())) {
             validateName(workflowDTO.getName());
         }
         existingEntity.setName(workflowDTO.getName());

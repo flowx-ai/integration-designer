@@ -9,4 +9,5 @@ public class EndpointIntegrationSystemSummaryDTO {
     private String id;
     private String name;
     private String baseUrl;
+    private String code;
 }

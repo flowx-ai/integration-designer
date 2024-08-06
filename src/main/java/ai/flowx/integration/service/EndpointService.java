@@ -10,10 +10,7 @@ import ai.flowx.integration.repository.EndpointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.*;
@@ -106,6 +103,12 @@ public class EndpointService {
     public EndpointMetadata getEndpointMetadata(String endpointFlowxUuid){
         return endpointRepository.getEndpointMetadata(endpointFlowxUuid)
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
+    }
+
+    public List<EndpointWithSystemSummaryDTO> getEndpointsByFlowxUuids(Set<String> flowxUuids){
+        return endpointRepository.getEndpointsWithSystemCodeByFlowxUuids(flowxUuids).stream()
+                .map(endpointMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private void validateParamExists(String endpointId, String paramId, ParamType type) {

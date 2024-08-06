@@ -21,14 +21,16 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static ai.flowx.integration.exceptions.ExceptionMessages.ENDPOINT_NOT_UPDATED;
 import static ai.flowx.integration.repository.utils.EndpointFieldNames.*;
 import static ai.flowx.integration.repository.utils.EndpointFieldNames.ID;
 import static ai.flowx.integration.repository.utils.EndpointFieldNames.MODIFIED_BY;
 import static ai.flowx.integration.repository.utils.EndpointFieldNames.MODIFIED_DATE;
-import static ai.flowx.integration.repository.utils.IntegrationSystemFieldNames.FLOWX_UUID;
+import static ai.flowx.integration.repository.utils.EndpointFieldNames.NAME;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.addFields;
 
 @Repository
@@ -133,6 +135,26 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
 
         AggregationResults<EndpointWithSystem> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystem.class);
         return Optional.ofNullable(results.getMappedResults()).flatMap(r -> r.stream().findFirst());
+    }
+
+    @Override
+    public List<EndpointWithSystem> getEndpointsWithSystemCodeByFlowxUuids(Set<String> flowxUuids) {
+        AggregationOperation addFields = addFields()
+                .addFieldWithValue("convertedSystemId", ConvertOperators.ToObjectId.toObjectId("$systemId"))
+                .build();
+        LookupOperation lookupOperation = LookupOperation.newLookup()
+                .from(IntegrationSystemFieldNames.COLLECTION_NAME)
+                .localField("convertedSystemId")
+                .foreignField("_id")
+                .as("system");
+
+        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(FLOWX_UUID).in(flowxUuids)), addFields,
+                lookupOperation, Aggregation.unwind("system"),
+                Aggregation.project(IntegrationSystemFieldNames.ID, FLOWX_UUID, NAME, URL, HTTP_METHOD, PAYLOAD, HEADERS, QUERY_PARAMETERS, PATH_PARAMETERS)
+                        .and("system.code").as("system.code"));
+
+        AggregationResults<EndpointWithSystem> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystem.class);
+        return results.getMappedResults();
     }
 
     @Override
