@@ -38,9 +38,9 @@ public class UpdateWorkflowNodeValidator {
             throw new BadRequestAlertException("Conditions must be provided for fork node", WorkflowNode.class.getName(),
                     BadRequestErrorType.WORKFLOW_NOT_UPDATED);
         }
-        updateWorkflowNodeReqDTO.getConditions().stream().filter(condition -> !StringUtils.hasText(condition.getExpression()) || condition.getType() == null)
+        updateWorkflowNodeReqDTO.getConditions().stream().filter(condition -> condition.getType() == null)
                 .findAny().ifPresent(condition -> {
-                    throw new BadRequestAlertException("Expression and type must be provided for each condition", WorkflowNode.class.getName(),
+                    throw new BadRequestAlertException("Type must be provided for each condition", WorkflowNode.class.getName(),
                             BadRequestErrorType.WORKFLOW_NOT_UPDATED);
                 });
     }
@@ -58,7 +58,7 @@ public class UpdateWorkflowNodeValidator {
     private void validateStartNode(UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
     }
 
-    public void validate(WorkflowNodeType nodeType, UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO){
+    public void validate(WorkflowNodeType nodeType, UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
         validators.get(nodeType).accept(updateWorkflowNodeReqDTO);
     }
 }
