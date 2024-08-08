@@ -28,7 +28,10 @@ public interface EndpointCustomRepository {
 
     Optional<EndpointWithSystem> getEndpointWithSystem(String endpointId);
 
+    Optional<EndpointWithSystem> getEndpointWithSystemUsingUuid(String endpointFlowxUuid);
+
     List<EndpointWithSystem> getEndpointsWithSystemCodeByFlowxUuids(Set<String> flowxUuids);
 
     Optional<EndpointMetadata> getEndpointMetadata(String endpointFlowxUuid);
+
 }

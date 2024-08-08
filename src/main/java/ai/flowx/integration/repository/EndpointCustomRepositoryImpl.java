@@ -121,6 +121,15 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
 
     @Override
     public Optional<EndpointWithSystem> getEndpointWithSystem(String endpointId) {
+        return getEndpointWithSystem(new Criteria(ID).is(endpointId));
+    }
+
+    @Override
+    public Optional<EndpointWithSystem> getEndpointWithSystemUsingUuid(String endpointFlowxUuid) {
+        return getEndpointWithSystem(new Criteria(FLOWX_UUID).is(endpointFlowxUuid));
+    }
+
+    private Optional<EndpointWithSystem> getEndpointWithSystem(Criteria matchCriteria) {
         AggregationOperation addFields = addFields()
                 .addFieldWithValue("convertedSystemId", ConvertOperators.ToObjectId.toObjectId("$systemId"))
                 .build();
@@ -130,7 +139,8 @@ public class EndpointCustomRepositoryImpl implements EndpointCustomRepository {
                 .foreignField("_id")
                 .as("system");
 
-        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(new Criteria(ID).is(endpointId)), addFields,
+
+        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(matchCriteria), addFields,
                 lookupOperation, Aggregation.unwind("system"));
 
         AggregationResults<EndpointWithSystem> results = mongoTemplate.aggregate(aggregation, Endpoint.class, EndpointWithSystem.class);

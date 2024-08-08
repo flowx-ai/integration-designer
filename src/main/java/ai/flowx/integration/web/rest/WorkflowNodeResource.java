@@ -2,7 +2,6 @@ package ai.flowx.integration.web.rest;
 
 import ai.flowx.integration.dto.*;
 import ai.flowx.integration.service.WorkflowNodeService;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -56,10 +56,10 @@ public class WorkflowNodeResource {
 
     @PostMapping("/{workflowNodeId}/run")
     @PreAuthorize("hasAnyAuthority((@authorityService.rolesAllowedForAccessAndScope('manage-integrations', 'edit')))")
-    public ResponseEntity<NodeRunResponseDTO> runWorkflowNodeIndividually(@PathVariable String workflowNodeId, @Valid @RequestBody JsonNode jsonNode) {
+    public ResponseEntity<NodeRunResponseDTO> runWorkflowNodeIndividually(@PathVariable String workflowNodeId, @RequestBody Map<String, Object> input) {
         log.debug("REST request to run workflow node {} individually", workflowNodeId);
 
-        return ResponseEntity.ok().body(workflowNodeService.runWorkflowNodeIndividually(workflowNodeId, jsonNode));
+        return ResponseEntity.ok().body(workflowNodeService.runWorkflowNodeIndividually(workflowNodeId, input));
     }
 
     @DeleteMapping("/{workflowNodeId}")

@@ -11,18 +11,13 @@ import ai.flowx.integration.exceptions.enums.BadRequestErrorType;
 import ai.flowx.integration.mapper.WorkflowNodeMapper;
 import ai.flowx.integration.repository.WorkflowNodeRepository;
 import ai.flowx.integration.repository.WorkflowRepository;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -222,7 +217,7 @@ public class WorkflowNodeService {
         return deletedSequences;
     }
 
-    public NodeRunResponseDTO runWorkflowNodeIndividually(String workflowNodeId, JsonNode input) {
+    public NodeRunResponseDTO runWorkflowNodeIndividually(String workflowNodeId, Map<String, Object> input) {
         WorkflowNode workflowNode = findOneMandatory(workflowNodeId);
 
         return Optional.ofNullable(workflowNodeRunnerMap.get(workflowNode.getType()))

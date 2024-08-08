@@ -17,7 +17,7 @@ public class WorkflowNodeScriptRunner implements WorkflowNodeRunner{
     private final ObjectMapper objectMapper;
 
     @Override
-    public NodeRunResponseDTO runNode(WorkflowNode workflowNode, JsonNode input) {
+    public NodeRunResponseDTO runNode(WorkflowNode workflowNode, Map<String, Object> input) {
         return NodeRunResponseDTO.builder()
                 .output(objectMapper.valueToTree(Map.of("test", "script")))
                 .build();
