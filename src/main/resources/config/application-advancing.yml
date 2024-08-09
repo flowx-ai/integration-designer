@@ -1,0 +1,8 @@
+advancing:
+  threads: 20
+  picking-batch-size: 10
+  picking-pause-millis: 100
+  cooldown-after-seconds: 120
+  scheduler:
+    heartbeat:
+      cronExpression: "*/2 * * * * ?"

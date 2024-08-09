@@ -1,0 +1,15 @@
+advancing:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+
+    url: jdbc:postgresql://localhost:5432/advancing
+    jdbc-url: ${advancing.datasource.url}
+
+    username: postgres
+    password: wrongpwd
+
+    maximum-pool-size: 40
+    minimum-idle: 1
+    connection-timeout: 30000
+    leak-detection-threshold: 20000
