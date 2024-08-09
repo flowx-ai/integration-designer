@@ -31,6 +31,8 @@ public class ExceptionMessages {
     public static final String WORKFLOW_NODE_SEQUENCE_NOT_VALID_SRC_TARGET_BOTH_START_END = "One of the nodes must be different type from START/END!";
     public static final String WORKFLOW_NODE_SEQUENCE_NOT_VALID_START_TO_END = "START node cannot have sequence to END node!";
     public static final String WORKFLOW_NODE_RUN_TYPE_INVALID = "This node cannot be run individually!";
+    public static final String WORKFLOW_NODE_RUN_PLACEHOLDER_HAS_NO_VALUE = "The placeholder %s has no value set!";
+    public static final String WORKFLOW_NODE_RUN_REQUIRED_VALUE_NOT_PRESENT = "Required value for %s of type %s does not exist!";
 
 
     ExceptionMessages() {

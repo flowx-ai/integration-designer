@@ -13,3 +13,4 @@ public class GenericEndpointParamDTO extends EndpointParamDTO{
     @NotNull
     private ParamType paramType;
 }
+

@@ -100,6 +100,12 @@ public class EndpointService {
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
     }
 
+
+    public EndpointWithSystem getEndpointWithSystemUsingUuid(String endpointFlowxUuid) {
+        return endpointRepository.getEndpointWithSystemUsingUuid(endpointFlowxUuid)
+                .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
+    }
+
     public EndpointMetadata getEndpointMetadata(String endpointFlowxUuid){
         return endpointRepository.getEndpointMetadata(endpointFlowxUuid)
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
@@ -115,8 +121,13 @@ public class EndpointService {
         Endpoint endpoint = endpointRepository.findById(endpointId)
                 .orElseThrow(() -> new BadRequestAlertException(ENDPOINT_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.ENDPOINT_NOT_FOUND));
 
-        Optional<List<EndpointParam>> paramsOpt = ParamType.HEADER.equals(type) ? Optional.ofNullable(endpoint.getHeaders()) : Optional.ofNullable(endpoint.getQueryParameters());
-        paramsOpt.flatMap(list -> list.stream().filter(ep -> Objects.equals(ep.getId(), paramId)).findFirst())
+        List<EndpointParam> endpointParams = switch (type) {
+            case HEADER -> endpoint.getHeaders();
+            case QUERY -> endpoint.getQueryParameters();
+            case PATH -> endpoint.getPathParameters();
+        };
+
+        Optional.ofNullable(endpointParams).flatMap(list -> list.stream().filter(ep -> Objects.equals(ep.getId(), paramId)).findFirst())
                 .orElseThrow(() -> new BadRequestAlertException(PARAMETER_NOT_FOUND, Endpoint.class.getName(), BadRequestErrorType.PARAMETER_NOT_FOUND));
     }
 

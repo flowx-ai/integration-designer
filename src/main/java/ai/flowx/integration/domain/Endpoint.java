@@ -5,6 +5,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
@@ -18,7 +19,10 @@ import java.util.List;
 public class Endpoint extends BaseAuditableEntity implements Serializable {
     @Id
     private String id;
+
+    @Indexed(name = "endpoints_flowxUuid")
     private String flowxUuid;
+
     private String name;
     private String description;
     private String url;
