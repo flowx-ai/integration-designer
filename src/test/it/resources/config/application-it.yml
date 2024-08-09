@@ -1,0 +1,147 @@
+logging:
+  level:
+    ai.flowx.admin: ${LOGGING_LEVEL_APP:DEBUG}
+
+    com.zaxxer.hikari: OFF
+
+    io:
+      netty: WARN
+      lettuce.core: ${LOGGING_LEVEL_REDIS:OFF}
+
+    reactor: WARN
+
+    org.hibernate:
+      sql: DEBUG
+      metamodel: WARN
+      metamodel.internal: OFF
+
+server:
+  port: 18080
+
+management:
+  health:
+    db.enabled: true
+    kafka.enabled: true
+
+spring:
+  application:
+    name: admin
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
+
+  jackson:
+    serialization:
+      indent-output: true
+
+application:
+  defaultLocale: en
+  supportedLocales: en, ro
+
+  #config for redis template, not spring cache with redis
+  redis:
+    defaultSerializer: kryo # jdk / kryo
+    kryo:
+      show-trace: false
+      registered-classes:
+        - ai.flowx.admin.health.dto.HealthComponentDTO
+        - ai.flowx.admin.health.dto.ServiceHealthResponse
+        - ai.flowx.admin.health.dto.PlatformHealthResponse
+      registered-components-versions-classes:
+        - ai.flowx.process.platform.dto.ComponentsVersionsDTO
+    key-duration-seconds:
+      receivedMessage: 3600
+    prefixExternalMessages: "receivedMessages:"
+
+flowx:
+  platform-health:
+    namespace: ${NAMESPACE:qa}
+    managementBasePath: ${management.server.base-path}
+    actuatorBasePath: ${management.endpoints.web.base-path}
+    annotationName: ${SERVICE_ANNOTATION:fabric8.io/expose}
+    annotationValue: ${SERVICE_ANNOTATION_VALUE:false}
+
+  multi-edit:
+    ttl: 45
+
+  undo-redo:
+    ttl: 86400 # in seconds
+    cleanup:
+      cronExpression: 0 0 2 ? * * # every day at 2am
+      days: 2
+
+  authenticate.client-id: flowx-platform-authenticate
+
+  versioning:
+    merge:
+      excluded-json-paths: >
+        nodeDefinitions.*.layoutOptions
+        sequencesForNode.*.layoutOptions
+    flattenMap:
+      excluded-json-paths: >
+        templateConfig.*.validators,
+        templateConfig.*.dataSource,
+        uiTemplatesByNavArea(.*.)*platformsDisplayOptions,
+        uiTemplatesByNavArea(.*.)*validators,
+        uiTemplatesByNavArea.*.options,
+        nodeDefinitions.*.rules,
+        sequencesForNode.*.layoutOptions
+
+
+---
+spring.config.activate.on-profile: k8s-oracle,it-oracle
+spring.config.import: application-logging-common-it.yml, application-management-it.yml, application-kafka-it.yml, application-datasource-commons-it.yml, application-datasource-sql-it-oracle.yml, application-oauth-it.yml, application-cache-it.yml
+spring.datasource.url: jdbc:oracle:thin:@oradb.qa.svc:1521:XE
+spring.datasource.driver-class-name: oracle.jdbc.OracleDriver
+spring.datasource.username: flowx_onboarding
+spring.datasource.password: wrongpwd
+spring.jpa.database-platform: org.hibernate.dialect.Oracle10gDialect
+spring.jpa.database: oracle
+spring.jpa.properties.hibernate.default_schema:
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+---
+spring.config.activate.on-profile: dev,it
+spring.config.import: application-logging-common-it.yml, application-management-it.yml, application-kafka-it.yml, application-datasource-commons-it.yml, application-datasource-sql-it.yml, application-oauth-it.yml, application-cache-it.yml
+spring.datasource.driver-class-name: org.postgresql.Driver
+spring.datasource.url: jdbc:postgresql://localhost:5432/process
+spring.datasource.username: admin
+spring.datasource.password: wrongpwd
+spring.jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.database: postgresql
+
+spring.redis.password: wrongpwd
+
+security.oauth2.base-server-url: http://localhost:8080
+security.oauth2.realm: flowx
+security.oauth2.client.client-id: flowx-platform-authorize
+security.oauth2.client.client-secret: wrong-secret
+
+logging.level.ROOT: DEBUG
+logging.level.ai.flowx.admin: DEBUG
+logging.level.web: OFF
+logging.level.org.springframework.web: OFF
+logging.level.org.springframework.transaction.interceptor: OFF
+logging.level.liquibase: OFF
+
+server.port: 8086
+management.server.port: 8186
+
+flowx.authenticate.client-id: paperflow
+
+security.oauth2.service-account.admin.client-id: flowx-admin-sa
+security.oauth2.service-account.admin.client-secret: S4EP7P0GJcNFoBl1r4KNxBgZ88RFdEfN
+# https://keycloak.discourse.group/t/keycloak-admin-client-in-spring-boot/2547/2
+
+
+

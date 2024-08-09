@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@oradb.qa.svc:1521:XE
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: engine
+    password: test1234
+  jpa:
+    database-platform: org.hibernate.dialect.Oracle10gDialect
+    database: oracle
+    show-sql: false
+
+    properties:
+      hibernate.default_schema: engine
