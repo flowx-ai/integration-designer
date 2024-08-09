@@ -25,6 +25,7 @@ public class WorkflowNodeFieldNames {
     public static final String SEQUENCES_TARGET = "outgoingSequences.targetNodeFlowxUuid";
     public static final String SEQUENCES_ID = "outgoingSequences._id";
     public static final String SEQUENCES_$ = "outgoingSequences.$";
+    public static final String CONDITION_ID = "conditionId";
 
     WorkflowNodeFieldNames() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

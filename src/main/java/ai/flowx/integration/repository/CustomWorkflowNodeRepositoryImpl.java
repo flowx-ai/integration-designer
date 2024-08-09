@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -50,7 +51,8 @@ public class CustomWorkflowNodeRepositoryImpl implements CustomWorkflowNodeRepos
     }
 
     @Override
-    public void updateGeneralNode(WorkflowNode node) {
+    public void updateGeneralNode(WorkflowNode node, List<String> deletedConditionsIds) {
+        BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.ORDERED, WorkflowNode.class);
         Query query = new Query(Criteria.where(ID).is(node.getId()));
         Update update = new Update();
         update.set(NAME, node.getName());
@@ -64,7 +66,18 @@ public class CustomWorkflowNodeRepositoryImpl implements CustomWorkflowNodeRepos
         update.set(INTEGRATION_SYSTEM_FLOWX_UUID, node.getIntegrationSystemFlowxUuid());
         update.set(VARIABLES, node.getVariables());
         update.set(PAYLOAD, node.getPayload());
-        executeUpdate(query, update);
+
+        bulkOps.updateOne(query, update);
+
+        if(!CollectionUtils.isEmpty(deletedConditionsIds)){
+            Query nodeQuery = new Query(Criteria.where(ID).is(node.getId()));
+            nodeQuery.addCriteria(Criteria.where(CONDITION_ID).in(deletedConditionsIds));
+
+            Update deleteSeq = new Update().pull(SEQUENCES, nodeQuery);
+
+            bulkOps.updateOne(nodeQuery, deleteSeq);
+        }
+        executeBulkUpdate(bulkOps);
     }
 
     @Override

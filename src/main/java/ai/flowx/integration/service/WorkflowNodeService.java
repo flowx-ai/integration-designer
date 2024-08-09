@@ -1,9 +1,12 @@
 package ai.flowx.integration.service;
 
 import ai.flowx.commons.errors.BadRequestAlertException;
+import ai.flowx.integration.domain.Condition;
 import ai.flowx.integration.domain.EndpointMetadata;
 import ai.flowx.integration.domain.Sequence;
 import ai.flowx.integration.domain.WorkflowNode;
+import ai.flowx.integration.domain.enums.ConditionType;
+import ai.flowx.integration.domain.enums.ScriptLanguage;
 import ai.flowx.integration.domain.enums.StatusType;
 import ai.flowx.integration.domain.enums.WorkflowNodeType;
 import ai.flowx.integration.dto.*;
@@ -26,8 +29,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static ai.flowx.integration.domain.enums.WorkflowNodeType.SCRIPT;
-import static ai.flowx.integration.domain.enums.WorkflowNodeType.START;
+import static ai.flowx.integration.domain.enums.WorkflowNodeType.*;
 import static ai.flowx.integration.exceptions.ExceptionMessages.*;
 
 @Transactional
@@ -57,7 +59,7 @@ public class WorkflowNodeService {
                 START, this::generalUpdateNode,
                 WorkflowNodeType.END, this::generalUpdateNode,
                 WorkflowNodeType.REST, this::updateRestNode,
-                WorkflowNodeType.FORK, this::generalUpdateNode,
+                WorkflowNodeType.FORK, this::updateForkNode,
                 SCRIPT, this::generalUpdateNode
         );
     }
@@ -82,6 +84,8 @@ public class WorkflowNodeService {
         node.setType(createWorkflowNodeReqDTO.getType());
         node.setWorkflowId(createWorkflowNodeReqDTO.getWorkflowId());
         node.setLayoutOptions(createWorkflowNodeReqDTO.getLayoutOptions());
+        addIfElseEmptyConditionsForForkNodeOnCreate(node);
+        setDefaultLanguageForScriptAndForkNodeOnCreate(node);
         return workflowNodeMapper.toDto(workflowNodeRepository.save(node));
     }
 
@@ -123,7 +127,14 @@ public class WorkflowNodeService {
 
     private void generalUpdateNode(WorkflowNode existingNode, UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
         WorkflowNode nodeToUpdate = workflowNodeMapper.toEntity(updateWorkflowNodeReqDTO);
-        workflowNodeRepository.updateGeneralNode(nodeToUpdate);
+        workflowNodeRepository.updateGeneralNode(nodeToUpdate, null);
+    }
+
+    private void updateForkNode(WorkflowNode existingNode, UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
+        WorkflowNode nodeToUpdate = workflowNodeMapper.toEntity(updateWorkflowNodeReqDTO);
+        List<String> deletedConditionsIds = getDeletedConditionsId(existingNode, nodeToUpdate);
+
+        workflowNodeRepository.updateGeneralNode(nodeToUpdate, deletedConditionsIds);
     }
 
     private void updateRestNode(WorkflowNode existingNode, UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
@@ -136,7 +147,7 @@ public class WorkflowNodeService {
             workflowRepository.updateSystemCounters(existingNode.getWorkflowId(), existingNode.getIntegrationSystemFlowxUuid(),
                     nodeToUpdate.getIntegrationSystemFlowxUuid());
         }
-        workflowNodeRepository.updateGeneralNode(nodeToUpdate);
+        workflowNodeRepository.updateGeneralNode(nodeToUpdate, null);
     }
 
     private WorkflowNode findOneMandatory(String id) {
@@ -150,7 +161,7 @@ public class WorkflowNodeService {
         sequenceDTO.setId(UUID.randomUUID().toString());
 
         List<WorkflowNode> workflowNodes = workflowNodeRepository.findByIdOrFlowxUuid(workflowNodeId, sequenceDTO.getTargetNodeFlowxUuid());
-        if(workflowNodes.size() != 2) {
+        if (workflowNodes.size() != 2) {
             throw new BadRequestAlertException(WORKFLOW_NODE_NOT_FOUND, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_NOT_FOUND);
         }
 
@@ -171,12 +182,12 @@ public class WorkflowNodeService {
                 sequenceDTO.getConditionId() != null && !WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType()) ||
                 sequenceDTO.getConditionId() == null && WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType());
 
-        if(contentsOfDTOsNotConsistentWithType
+        if (contentsOfDTOsNotConsistentWithType
         ) {
             throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
         }
 
-        if(TYPES_WITH_ONE_SEQUENCE_ALLOWED.contains(sourceWorkflowNode.getType()) && !CollectionUtils.isEmpty(sourceWorkflowNode.getOutgoingSequences())) {
+        if (TYPES_WITH_ONE_SEQUENCE_ALLOWED.contains(sourceWorkflowNode.getType()) && !CollectionUtils.isEmpty(sourceWorkflowNode.getOutgoingSequences())) {
             throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_ONE_SEQUENCE_ALLOWED, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
         } else if (WorkflowNodeType.END.equals(sourceWorkflowNode.getType())) {
             throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_END_NODE_NOT_ALLOWED, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
@@ -189,7 +200,7 @@ public class WorkflowNodeService {
             if (collect.getOrDefault(sequenceDTO.getStatusOutput(), 0L) > 0) {
                 throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_REST_NODE_HAS_STATUS_OUTPUT, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
             }
-        } else if(WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType())) {
+        } else if (WorkflowNodeType.FORK.equals(sourceWorkflowNode.getType())) {
             Optional.ofNullable(sourceWorkflowNode.getConditions()).orElse(Collections.emptyList())
                     .stream()
                     .filter(s -> s.getId().equals(sequenceDTO.getConditionId())).findFirst()
@@ -198,12 +209,12 @@ public class WorkflowNodeService {
     }
 
     private void validateSourceAndTargetSequenceCompatibility(WorkflowNode sourceWorkflowNode, WorkflowNode targetWorkflowNode) {
-        if(START_AND_END_NODE_TYPES.contains(sourceWorkflowNode.getType()) &&
+        if (START_AND_END_NODE_TYPES.contains(sourceWorkflowNode.getType()) &&
                 START_AND_END_NODE_TYPES.contains(targetWorkflowNode.getType())) {
             throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_SRC_TARGET_BOTH_START_END, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
         }
 
-        if(targetWorkflowNode.getType().equals(WorkflowNodeType.END) && sourceWorkflowNode.getType().equals(START)) {
+        if (targetWorkflowNode.getType().equals(WorkflowNodeType.END) && sourceWorkflowNode.getType().equals(START)) {
             throw new BadRequestAlertException(WORKFLOW_NODE_SEQUENCE_NOT_VALID_START_TO_END, SequenceDTO.class.getName(), BadRequestErrorType.WORKFLOW_NODE_SEQUENCE_NOT_VALID);
         }
     }
@@ -228,5 +239,48 @@ public class WorkflowNodeService {
         return Optional.ofNullable(workflowNodeRunnerMap.get(workflowNode.getType()))
                 .map(runner -> runner.runNode(workflowNode, input))
                 .orElseThrow(() -> new BadRequestAlertException(WORKFLOW_NODE_RUN_TYPE_INVALID, WorkflowNode.class.getName(), BadRequestErrorType.WORKFLOW_NODE_RUN_NOT_VALID));
+    }
+
+    private void addIfElseEmptyConditionsForForkNodeOnCreate(WorkflowNode node) {
+        if (WorkflowNodeType.FORK.equals(node.getType())) {
+            List<Condition> conditions = new ArrayList<>();
+            conditions.add(Condition.builder()
+                    .id(UUID.randomUUID().toString())
+                    .order(0)
+                    .type(ConditionType.IF)
+                    .build());
+            conditions.add(Condition.builder()
+                    .id(UUID.randomUUID().toString())
+                    .order(1)
+                    .type(ConditionType.ELSE)
+                    .build());
+            node.setConditions(conditions);
+        }
+    }
+
+    private List<String> getDeletedConditionsId(WorkflowNode existingNode, WorkflowNode toUpdate) {
+        List<String> result = new ArrayList<>();
+        if (CollectionUtils.isEmpty(existingNode.getConditions())) {
+            return result;
+        }
+        if (CollectionUtils.isEmpty(toUpdate.getConditions())) {
+            return Optional.ofNullable(existingNode.getConditions())
+                    .map(conditions -> conditions.stream().map(Condition::getId).collect(Collectors.toList()))
+                    .orElse(result);
+        }
+
+        Set<String> newConditionsIds = toUpdate.getConditions().stream().map(Condition::getId).collect(Collectors.toSet());
+        existingNode.getConditions().forEach(condition -> {
+            if (!newConditionsIds.contains(condition.getId())) {
+                result.add(condition.getId());
+            }
+        });
+        return result;
+    }
+
+    private void setDefaultLanguageForScriptAndForkNodeOnCreate(WorkflowNode node) {
+        if (SCRIPT.equals(node.getType()) || FORK.equals(node.getType())) {
+            node.setLanguage(ScriptLanguage.JAVASCRIPT);
+        }
     }
 }
