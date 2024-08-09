@@ -27,10 +27,6 @@ public class UpdateWorkflowNodeValidator {
     }
 
     private void validateScriptNode(UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
-        if (updateWorkflowNodeReqDTO.getLanguage() == null || !StringUtils.hasText(updateWorkflowNodeReqDTO.getScript())) {
-            throw new BadRequestAlertException("Script and language must be provided for script node", WorkflowNode.class.getName(),
-                    BadRequestErrorType.WORKFLOW_NOT_UPDATED);
-        }
     }
 
     private void validateForkNode(UpdateWorkflowNodeReqDTO updateWorkflowNodeReqDTO) {
