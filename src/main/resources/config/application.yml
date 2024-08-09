@@ -26,7 +26,7 @@ spring:
       write_dates_as_timestamps: false
       fail-on-empty-beans: false
 
-spring.config.import: application-logging-common.yml, application-management.yml, application-kafka.yml, application-datasource-mongo.yml, application-oauth.yml
+spring.config.import: application-logging-common.yml, application-management.yml, application-kafka.yml, application-datasource-mongo.yml, application-oauth.yml, application-advancing.yml, application-datasource-advancing.yml
 
 ---
 spring.config.activate.on-profile: dev
